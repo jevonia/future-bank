@@ -1,103 +1,72 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import React, { useState } from 'react';
+import { useSupabase } from './supabase-provider';
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+// Import Data (will be replaced with live data later)
+import { userData, userOffers, userWants, communityPulseData, contributionData, communityProjects, communityFundData, features } from '../lib/data';
+
+// Import Components
+import { Header } from '../components/dashboard/Header';
+import { DashboardCard } from '../components/dashboard/DashboardCard';
+import { ServiceCard } from '../components/dashboard/ServiceCard';
+import { CommunityPulse } from '../components/dashboard/CommunityPulse';
+import { ContributionConstellation } from '../components/dashboard/ContributionConstellation';
+import { CommunityProjects } from '../components/dashboard/CommunityProjects';
+import { CommunityFund } from '../components/dashboard/CommunityFund';
+import { ToolButton } from '../components/dashboard/ToolButton';
+import { AddOfferModal } from '../components/modals/AddOfferModal';
+import { KudosModal } from '../components/modals/KudosModal';
+import { WelcomeModal } from '../components/modals/WelcomeModal';
+import { CommunityFundModal } from '../components/modals/CommunityFundModal';
+import { AmplifyModal } from '../components/modals/AmplifyModal';
+import { LoginModal } from '../components/modals/LoginModal'; // New Import
+import { ClockIcon, CalendarIcon, ListIcon, SearchIcon } from '../components/icons';
+
+export default function DashboardPage() {
+    const { session } = useSupabase();
+
+    // State for modals
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    const [isAddOfferModalOpen, setIsAddOfferModalOpen] = useState(false);
+    // ... other modal states ...
+
+    return (
+        <div className="min-h-screen bg-slate-50 text-slate-800">
+            <Header onSignInClick={() => setIsLoginModalOpen(true)} />
+            <main className="p-4 sm:p-6 md:p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+                    
+                    {/* Publicly Visible Components */}
+                    {features.showCommunityPulse && <CommunityPulse data={communityPulseData} />}
+                    {features.showGroupProjects && <CommunityProjects projects={communityProjects} />}
+                    {features.showCommunityFund && <CommunityFund data={communityFundData} onInteract={() => session ? console.log('Open Fund Modal') : setIsLoginModalOpen(true)} />}
+                    
+                    {/* Logged-In Only Components */}
+                    {session && (
+                        <>
+                            <DashboardCard title="My Offers" onAdd={() => setIsAddOfferModalOpen(true)}>
+                                <div className="space-y-4">{userOffers.map(offer => <ServiceCard key={offer.id} item={offer} type="offer" />)}</div>
+                            </DashboardCard>
+                            <DashboardCard title="My Wants">
+                                <div className="space-y-4">{userWants.map(want => <ServiceCard key={want.id} item={want} type="want" />)}</div>
+                            </DashboardCard>
+                            {features.showContributionConstellation && <ContributionConstellation data={contributionData} />}
+                        </>
+                    )}
+
+                    <DashboardCard title="Community Marketplace">
+                        <p className="text-sm text-slate-500 mb-4">Discover skills and services offered by others.</p>
+                        <div className="relative mb-4"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400"><SearchIcon /></div><input type="text" placeholder="Search for services..." className="w-full p-3 pl-12 bg-slate-100 rounded-lg border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:outline-none transition" /></div>
+                    </DashboardCard>
+
+                </div>
+            </main>
+            
+            {/* Render all modals here */}
+            <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+            <AddOfferModal isOpen={isAddOfferModalOpen} onClose={() => setIsAddOfferModalOpen(false)} />
+            {/* ... other modals ... */}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    );
 }
