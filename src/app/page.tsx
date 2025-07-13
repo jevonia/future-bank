@@ -2,9 +2,6 @@ import { createClient } from '@/lib/supabase/server';
 import DashboardClient from './dashboard-client';
 import type { AppState } from '@/lib/types';
 
-// Import mock data for features that are not yet dynamic
-import { communityPulseData, contributionData, communityProjects, communityFundData, features } from '../lib/data';
-
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

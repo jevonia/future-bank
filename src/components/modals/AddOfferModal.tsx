@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useSupabase } from '../../app/supabase-provider';
+import { useAuth } from '../../lib/hooks/useAuth';
 
 interface AddOfferModalProps {
     isOpen: boolean;
@@ -10,7 +10,7 @@ interface AddOfferModalProps {
 }
 
 export function AddOfferModal({ isOpen, onClose, initialData, onOfferAdded }: AddOfferModalProps) {
-    const { supabase, session } = useSupabase();
+    const { user, supabase } = useAuth();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('Misc');
@@ -29,7 +29,7 @@ export function AddOfferModal({ isOpen, onClose, initialData, onOfferAdded }: Ad
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        if (!session) {
+        if (!user) {
             alert("You must be logged in to create an offer.");
             return;
         }
@@ -42,7 +42,7 @@ export function AddOfferModal({ isOpen, onClose, initialData, onOfferAdded }: Ad
                     title, 
                     description, 
                     category,
-                    user_id: session.user.id 
+                    user_id: user.id 
                 }
             ]);
 
@@ -65,7 +65,7 @@ export function AddOfferModal({ isOpen, onClose, initialData, onOfferAdded }: Ad
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop" onClick={onClose}>
             <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg modal-content" onClick={e => e.stopPropagation()}>
                 <h2 className="text-2xl font-bold mb-4">Add a New Offer</h2>
-                <p className="text-slate-500 mb-6">Describe the skill or service you'd like to provide to the community.</p>
+                <p className="text-slate-500 mb-6">Describe the skill or service you&apos;d like to provide to the community.</p>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
