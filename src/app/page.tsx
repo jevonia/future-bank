@@ -6,23 +6,23 @@ import type { AppState } from '@/lib/types';
 import { communityPulseData, contributionData, communityProjects, communityFundData, features } from '../lib/data';
 
 export default async function DashboardPage() {
-    const supabase = createClient();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  let appState: AppState = {
+    user: user,
+    profile: null,
+    offers: [],
+    wants: [],
+  };
 
-    const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    const { data: offers } = await supabase.from('offers').select('*').eq('user_id', user.id);
+    const { data: wants } = await supabase.from('wants').select('*').eq('user_id', user.id);
     
-    let appState: AppState = {
-        user: user,
-        profile: null,
-        offers: [],
-        wants: [],
-    };
+    appState = { ...appState, profile, offers: offers || [], wants: wants || [] };
+  }
 
-    if (user) {
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-        const { data: offers } = await supabase.from('offers').select('*').eq('user_id', user.id);
-        const { data: wants } = await supabase.from('wants').select('*').eq('user_id', user.id);
-        appState = { ...appState, profile, offers: offers || [], wants: wants || [] };
-    }
-
-    return <DashboardClient serverState={appState} />;
+  return <DashboardClient serverState={appState} />;
 }
