@@ -56,7 +56,7 @@ export default function DashboardPage() {
                     )}
 
                     <DashboardCard title="Community Marketplace">
-                        <p className="text-sm text-slate-500 mb-4">Discover skills and services offered by others.</p>
+                        <p className="text-sm text-slate-500 mb-4">Discover great new skills and services offered by others.</p>
                         <div className="relative mb-4"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400"><SearchIcon /></div><input type="text" placeholder="Search for services..." className="w-full p-3 pl-12 bg-slate-100 rounded-lg border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:outline-none transition" /></div>
                     </DashboardCard>
 
