@@ -1,21 +1,26 @@
 'use client';
 import React from 'react';
-import { useSupabase } from '../../app/supabase-provider';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+import type { User } from '@supabase/supabase-js';
+import type { Profile } from '@/lib/types';
 
 interface HeaderProps {
+    user: User | null;
+    profile: Profile | null;
     onSignInClick: () => void;
-    profile: any; // The user's profile data
 }
 
-export function Header({ onSignInClick, profile }: HeaderProps) {
-    const { supabase, session } = useSupabase();
+export function Header({ user, profile, onSignInClick }: HeaderProps) {
+    const supabase = createClient();
+    const router = useRouter();
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
+        router.refresh();
     };
-
-    // Use the profile username if it exists, otherwise fallback to the email part
-    const displayName = profile?.username || session?.user?.email?.split('@')[0] || "Community Member";
+    
+    const displayName = profile?.username || user?.email?.split('@')[0] || "Community Member";
     const balance = profile?.time_balance || 0;
 
     return (
@@ -27,12 +32,12 @@ export function Header({ onSignInClick, profile }: HeaderProps) {
                     </div>
                     <div>
                         <h1 className="text-xl font-bold text-slate-900">
-                            Welcome, {displayName}!
+                            {user ? `Welcome, ${displayName}!` : 'Welcome to FutureBank!'}
                         </h1>
                         <p className="text-slate-500 text-sm">Your community dashboard.</p>
                     </div>
                 </div>
-                {session ? (
+                {user ? (
                      <div className="text-right">
                         <h2 className="text-sm font-medium text-slate-500">Time Credit Balance</h2>
                         <p className="text-4xl font-extrabold text-violet-500 balance-glow">{balance.toFixed(1)} TC</p>
@@ -46,7 +51,7 @@ export function Header({ onSignInClick, profile }: HeaderProps) {
                     </button>
                 )}
             </div>
-            {session && (
+            {user && (
                 <div className="absolute top-4 right-4">
                      <button 
                         onClick={handleSignOut}
