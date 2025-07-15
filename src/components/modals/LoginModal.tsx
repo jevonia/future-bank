@@ -23,7 +23,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
         if (isSignUp) {
             // Sign up with username
-            const { error } = await supabase.auth.signUp({
+            const { error: signUpError, data } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
@@ -33,22 +33,29 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 }
             });
 
-            if (error) {
-                setError(error.message);
-            } else {
-                // Create profile with username
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                    await supabase.from('profiles').insert([
-                        {
-                            id: user.id,
-                            username: username,
-                            avatar_url: null,
-                            time_balance: 0
-                        }
-                    ]);
+            if (signUpError) {
+                setError(signUpError.message);
+                setLoading(false);
+                return;
+            }
+
+            // Create profile with username
+            if (data.user) {
+                const { error: profileError } = await supabase.from('profiles').insert([
+                    {
+                        id: data.user.id,
+                        username: username,
+                        avatar_url: null,
+                        time_balance: 0.0  // Use double precision
+                    }
+                ]);
+
+                if (profileError) {
+                    console.error('Profile creation error:', profileError);
+                    setError('Account created but profile setup failed. Please try signing in.');
+                } else {
+                    onClose();
                 }
-                onClose();
             }
         } else {
             // Sign in

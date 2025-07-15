@@ -46,7 +46,7 @@ export function AddOfferModal({ isOpen, onClose, initialData, onOfferAdded }: Ad
                         id: user.id,
                         username: user.email?.split('@')[0] || 'User',
                         avatar_url: null,
-                        time_balance: 0
+                        time_balance: 0.0  // Use double precision
                     }
                 ]);
 

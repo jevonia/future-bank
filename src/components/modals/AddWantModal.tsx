@@ -59,7 +59,7 @@ export function AddWantModal({ isOpen, onClose, initialData, onWantAdded }: AddW
                         id: user.id,
                         username: user.email?.split('@')[0] || 'User',
                         avatar_url: null,
-                        time_balance: 0
+                        time_balance: 0.0  // Use double precision
                     }
                 ]);
 

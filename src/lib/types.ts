@@ -4,7 +4,7 @@ export interface Profile {
   id: string;
   username: string | null;
   avatar_url: string | null;
-  time_balance: number;
+  time_balance: number;  // Changed from decimal to number for double precision
 }
 
 export interface Offer {
