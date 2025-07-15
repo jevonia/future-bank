@@ -15,6 +15,8 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const [username, setUsername] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [confirmationEmail, setConfirmationEmail] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -39,23 +41,11 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 return;
             }
 
-            // Create profile with username
+            // Profile will be created automatically by the database trigger
             if (data.user) {
-                const { error: profileError } = await supabase.from('profiles').insert([
-                    {
-                        id: data.user.id,
-                        username: username,
-                        avatar_url: null,
-                        time_balance: 0.0  // Use double precision
-                    }
-                ]);
-
-                if (profileError) {
-                    console.error('Profile creation error:', profileError);
-                    setError('Account created but profile setup failed. Please try signing in.');
-                } else {
-                    onClose();
-                }
+                setConfirmationEmail(email);
+                setShowConfirmation(true);
+                // Don't close modal yet - show confirmation message
             }
         } else {
             // Sign in
@@ -75,6 +65,43 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     };
 
     if (!isOpen) return null;
+
+    // Show confirmation message
+    if (showConfirmation) {
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop" onClick={onClose}>
+                <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md modal-content" onClick={e => e.stopPropagation()}>
+                    <div className="text-center">
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <h1 className="text-2xl font-bold text-slate-900 mb-4">Welcome to FutureBank!</h1>
+                        <p className="text-slate-600 mb-6">
+                            We've sent a confirmation email to <span className="font-semibold">{confirmationEmail}</span>
+                        </p>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <p className="text-sm text-blue-800">
+                                <strong>Next steps:</strong>
+                            </p>
+                            <ul className="text-sm text-blue-700 mt-2 space-y-1">
+                                <li>• Check your email for the confirmation link</li>
+                                <li>• Click the link to verify your account</li>
+                                <li>• Come back here to start exchanging time credits</li>
+                            </ul>
+                        </div>
+                        <button
+                            onClick={onClose}
+                            className="w-full bg-violet-600 text-white py-3 px-4 rounded-lg hover:bg-violet-700 transition"
+                        >
+                            Got it!
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop" onClick={onClose}>

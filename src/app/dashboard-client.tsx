@@ -14,6 +14,7 @@ import { CommunityFund } from '../components/dashboard/CommunityFund';
 import { AddOfferModal } from '../components/modals/AddOfferModal';
 import { AddWantModal } from '../components/modals/AddWantModal';
 import { LoginModal } from '../components/modals/LoginModal';
+import { EmailConfirmationBanner } from '../components/EmailConfirmationBanner';
 import { SearchIcon } from '../components/icons';
 
 // Import mock data for features that are not yet dynamic
@@ -56,6 +57,9 @@ export default function DashboardClient({ serverState }: { serverState: AppState
                 onProfileUpdated={handleProfileUpdated}
             />
             <main className="p-4 sm:p-6 md:p-8">
+                {/* Email Confirmation Banner */}
+                <EmailConfirmationBanner />
+                
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
                     
                     {/* Publicly Visible Components */}
@@ -66,10 +70,18 @@ export default function DashboardClient({ serverState }: { serverState: AppState
                     {/* Logged-In Only Components */}
                     {appState.user && (
                         <>
-                            <DashboardCard title="My Offers" onAdd={() => setIsAddOfferModalOpen(true)}>
+                            <DashboardCard 
+                                title="My Offers" 
+                                onAdd={() => appState.user?.email_confirmed_at ? setIsAddOfferModalOpen(true) : null}
+                                disabled={!appState.user?.email_confirmed_at}
+                            >
                                 <div className="space-y-4">{appState.offers.map(offer => <ServiceCard key={offer.id} item={offer} type="offer" />)}</div>
                             </DashboardCard>
-                            <DashboardCard title="My Wants" onAdd={() => setIsAddWantModalOpen(true)}>
+                            <DashboardCard 
+                                title="My Wants" 
+                                onAdd={() => appState.user?.email_confirmed_at ? setIsAddWantModalOpen(true) : null}
+                                disabled={!appState.user?.email_confirmed_at}
+                            >
                                 <div className="space-y-4">{appState.wants.map(want => <ServiceCard key={want.id} item={want} type="want" />)}</div>
                             </DashboardCard>
                             {features.showContributionConstellation && <ContributionConstellation data={contributionData} />}
