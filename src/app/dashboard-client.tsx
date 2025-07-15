@@ -42,12 +42,18 @@ export default function DashboardClient({ serverState }: { serverState: AppState
         // We would re-fetch data here. For now, we just close the modal.
     };
 
+    const handleProfileUpdated = () => {
+        // Refresh the page to get updated profile data
+        window.location.reload();
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800">
             <Header 
                 user={appState.user}
                 profile={appState.profile}
                 onSignInClick={() => setIsLoginModalOpen(true)} 
+                onProfileUpdated={handleProfileUpdated}
             />
             <main className="p-4 sm:p-6 md:p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">

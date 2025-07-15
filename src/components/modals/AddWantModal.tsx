@@ -40,6 +40,39 @@ export function AddWantModal({ isOpen, onClose, initialData, onWantAdded }: AddW
         );
     };
 
+    const ensureProfileExists = async () => {
+        if (!user) return false;
+        
+        // Check if profile exists
+        const { data: existingProfile, error: fetchError } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('id', user.id)
+            .single();
+
+        if (fetchError && fetchError.code === 'PGRST116') {
+            // Profile doesn't exist, create one
+            const { error: insertError } = await supabase
+                .from('profiles')
+                .insert([
+                    {
+                        id: user.id,
+                        username: user.email?.split('@')[0] || 'User',
+                        avatar_url: null,
+                        time_balance: 0
+                    }
+                ]);
+
+            if (insertError) {
+                console.error('Error creating profile:', insertError);
+                return false;
+            }
+            return true;
+        }
+
+        return !fetchError;
+    };
+
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (!user) {
@@ -47,6 +80,14 @@ export function AddWantModal({ isOpen, onClose, initialData, onWantAdded }: AddW
             return;
         }
         setLoading(true);
+
+        // Ensure profile exists before creating want
+        const profileExists = await ensureProfileExists();
+        if (!profileExists) {
+            alert('Error: Unable to create or verify user profile. Please try again.');
+            setLoading(false);
+            return;
+        }
 
         const { error } = await supabase
             .from('wants')
