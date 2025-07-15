@@ -12,6 +12,7 @@ import { ContributionConstellation } from '../components/dashboard/ContributionC
 import { CommunityProjects } from '../components/dashboard/CommunityProjects';
 import { CommunityFund } from '../components/dashboard/CommunityFund';
 import { AddOfferModal } from '../components/modals/AddOfferModal';
+import { AddWantModal } from '../components/modals/AddWantModal';
 import { LoginModal } from '../components/modals/LoginModal';
 import { SearchIcon } from '../components/icons';
 
@@ -22,6 +23,7 @@ export default function DashboardClient({ serverState }: { serverState: AppState
     const [appState, setAppState] = useState(serverState);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [isAddOfferModalOpen, setIsAddOfferModalOpen] = useState(false);
+    const [isAddWantModalOpen, setIsAddWantModalOpen] = useState(false);
 
     useEffect(() => {
         if (appState.user) {
@@ -32,6 +34,11 @@ export default function DashboardClient({ serverState }: { serverState: AppState
     // In a real app, we would fetch new data here after an offer is added.
     const handleOfferAdded = () => {
         setIsAddOfferModalOpen(false);
+        // We would re-fetch data here. For now, we just close the modal.
+    };
+
+    const handleWantAdded = () => {
+        setIsAddWantModalOpen(false);
         // We would re-fetch data here. For now, we just close the modal.
     };
 
@@ -56,7 +63,7 @@ export default function DashboardClient({ serverState }: { serverState: AppState
                             <DashboardCard title="My Offers" onAdd={() => setIsAddOfferModalOpen(true)}>
                                 <div className="space-y-4">{appState.offers.map(offer => <ServiceCard key={offer.id} item={offer} type="offer" />)}</div>
                             </DashboardCard>
-                            <DashboardCard title="My Wants">
+                            <DashboardCard title="My Wants" onAdd={() => setIsAddWantModalOpen(true)}>
                                 <div className="space-y-4">{appState.wants.map(want => <ServiceCard key={want.id} item={want} type="want" />)}</div>
                             </DashboardCard>
                             {features.showContributionConstellation && <ContributionConstellation data={contributionData} />}
@@ -75,6 +82,11 @@ export default function DashboardClient({ serverState }: { serverState: AppState
                 isOpen={isAddOfferModalOpen} 
                 onClose={() => setIsAddOfferModalOpen(false)} 
                 onOfferAdded={handleOfferAdded} 
+            />
+            <AddWantModal 
+                isOpen={isAddWantModalOpen} 
+                onClose={() => setIsAddWantModalOpen(false)} 
+                onWantAdded={handleWantAdded} 
             />
         </div>
     );
