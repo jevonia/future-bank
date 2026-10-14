@@ -1,38 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# New Future Bank
 
-## Getting Started
+New Future Bank is a community time bank built with Next.js 16 and Supabase. Members share offers and requests, coordinate exchanges, confirm completed help, and track credits in integer minutes. One hour equals one time credit; a new account receives a recorded two-hour welcome grant.
 
-First, run the development server:
+The public page can render without Supabase credentials. Member sign-in and community data require a configured Supabase project with the migrations in this repository. The signed-in journey has not yet been verified against the connected live project, and no migration or deployment has been performed from this checkout.
+
+## Requirements and local setup
+
+- Node.js 22 LTS and npm
+- A Supabase project for authenticated local development
+
+Install dependencies and start the app:
 
 ```bash
+npm ci
+cp .env.example .env.local
+# Set the two public values described below in .env.local.
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). Without the Supabase values, the public page displays a disconnected/empty state and authentication actions explain that configuration is missing.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The application reads only these browser-safe variables:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Name | Value |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | The Supabase project's API URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | The project's publishable/anon public API key |
 
-## Learn More
+Do not put a service-role key, database password, access token, or other privileged secret in a `NEXT_PUBLIC_` variable. Keep local values in the ignored `.env.local`; use Vercel environment settings for hosted environments. The example file contains names only, not working credentials.
 
-To learn more about Next.js, take a look at the following resources:
+## Commands
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start Next.js development mode |
+| `npm run lint` | Lint `src` and `tests` with ESLint |
+| `npm run typecheck` | Run TypeScript without emitting files |
+| `npm run test` | Run the Node/tsx helper tests and PGlite database integration suite |
+| `npm run test:concurrency` | Run PostgreSQL lock/concurrency checks against an explicitly disposable database |
+| `npm run build` | Create a production build |
+| `npm run start` | Serve the production build locally |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The standard lint, typecheck, test, and build commands do not need hosted credentials. The concurrency test requires a newly created disposable PostgreSQL database and the `BANK_TEST_DATABASE_URL` and `BANK_TEST_CONFIRM_DISPOSABLE=1` variables; see [database setup and verification](docs/DATABASE.md). Never point it at production or a database containing real `auth.users`.
 
-## Deploy on Vercel
+## Database and authentication
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The authoritative database setup is the ordered migrations in [`supabase/migrations`](supabase/migrations). Read [docs/DATABASE.md](docs/DATABASE.md) before preparing a preview or an existing project. It covers the read-only preflight, backup and preview sequence, legacy data handling, grants, RLS, and the local integration/concurrency checks.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For email confirmation and password recovery, configure the Supabase Auth redirect allow list with:
 
-Fix git problem
+- `http://localhost:3000/auth/callback` for local development
+- `http://localhost:3001/auth/callback` for the current local QA server
+- `https://newfuturebank.com/auth/callback` for the production domain
+
+Add a preview callback only after confirming the exact preview hostname and that its Vercel environment points to the intended preview Supabase project. Do not enable an unbounded wildcard for unknown preview hosts. Google sign-in also requires the provider settings in Supabase Auth to match that project's configured provider callback.
+
+The signup database trigger creates the profile and welcome-ledger entry when the auth user is created. Confirmation delivery, OAuth, password reset, and the full member exchange flow still need verification against a real preview project before onboarding or release.
+
+## Deployment target and status
+
+The recorded Vercel target is the existing **`future-bank`** project in scope **`novas-projects-c5420b8e`**, project ID **`prj_O0wo6gqYzDOLQ6X3Ramg4TrgU5B9`**. There is also a separate `future-bank-org` project; do not select it. The local Vercel CLI is linked to the exact target and the public environment was retrieved into ignored `.env.local`; values are not stored in this documentation. The associated Supabase project reference is `aitnqoqdkhvlgxuujowb` in TheVillage organization. The restored project responds to database and Auth API requests. The domain currently associated with this product is [newfuturebank.com](https://newfuturebank.com/).
+
+The public Supabase SDK connection has been verified and one profile row was observed; this is connectivity evidence only, not an authenticated app or access-control check. The hosted project was restored, but the bank schema migrations are absent. Local desktop/mobile visual and accessibility QA is complete, as are both disposable-PostgreSQL concurrency scenarios (competing spends and duplicate completion). The local QA dashboard fixture runs on port 3001 only when `BANK_QA_FIXTURE=1`; its UI and API are read-only in that mode. No live migration, authenticated end-to-end flow, or production deployment has been performed. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the remaining release gates.
+
+## Historical documents
+
+Root-level SQL/setup notes predate the reviewed migration model and may describe direct credit edits or obsolete exchange tables. Treat `DATABASE_SETUP.md`, `DATABASE_EXCHANGE_SYSTEM.md`, `DATABASE_MIGRATION*.md`, `DATABASE_RLS_FIX.md`, `DATABASE_TRIGGER_SETUP.md`, and `TEST_DATA_SETUP*.md` as historical reference only. Do not execute their SQL against any project. Use [`docs/DATABASE.md`](docs/DATABASE.md) and the versioned migrations instead. [PROJECT_REVIEW.md](PROJECT_REVIEW.md) and [HANDOFF.md](HANDOFF.md) record the audit and current implementation status.
