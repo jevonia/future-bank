@@ -4,20 +4,22 @@ Updated October 14, 2026. This roadmap is for reviving the existing time-bank co
 
 ## Current read
 
-The local app now has the core exchange, reservation-aware integer-minute ledger, member listings, private exchange threads, projects, fund actions, urgent alerts, and a public introduction. The database migrations and local integration/concurrency tests cover important authorization and accounting cases. Hosted authentication, migrated-schema behavior, and two-member browser journeys have not yet been verified, so the application is not ready for a public invitation or production migration.
+The connected production Supabase project now has both bank migrations applied. Postflight checks passed; existing account and listing data were preserved, and all four account balances and corresponding opening ledger amounts were zero minutes with no discrepancies. A scoped SQL/data snapshot was restored into disposable PostgreSQL, but full platform recovery for Auth credentials and Storage has not been verified. The app source and local integration/concurrency checks cover the core exchange, reservation-aware integer-minute ledger, listings, private exchange threads, projects, fund actions, and urgent alerts.
+
+The updated app has not been deployed. The production domain still serves the old build, so no hosted signup, email delivery, recovery, OAuth, or member exchange has been verified. The sender domain `auth.newfuturebank.com` is pending verification; SMTP and the new confirmation/recovery templates are not active. Google OAuth is disabled. The implementation checkpoint is `6e5fe6e` on `codex/new-future-bank-revival`; it has not been pushed, and auth callback/template work remains uncommitted. See [Deployment status](DEPLOYMENT.md) for exact gates.
 
 ## P0 — Establish a safe launch boundary
 
-Before inviting members:
+Before inviting members to use the updated app:
 
-- Confirm the exact Supabase and Vercel projects, production domain, redirect URLs, environment configuration, backup/restore path, and release branch. Keep the current production experience available until a tested replacement is ready.
-- Inspect the live schema and legacy balances, then apply the migrations to a preview project first. Reconcile any prior exchange/transaction history and compare every account to its signed ledger. The migration intentionally retains legacy exchange tables instead of pretending old transfers are reconciled.
-- Exercise signup, confirmation, sign-in, sign-out, recovery, profile editing, and the complete exchange with two confirmed preview members. Verify that a third member cannot read private messages, fund requests, or another member's ledger; verify reserved funds cannot be spent twice.
+- Complete hosted-mail setup, commit and push the matching callback/template code, and deploy a tested preview before replacing the live app. Test signup, confirmation, sign-in, sign-out, recovery, profile editing, and the complete exchange with synthetic confirmed members. Verify a third member cannot read private messages, fund requests, or another member's ledger; verify reserved funds cannot be spent twice.
+- Review the completed production migration evidence and the scoped recovery artifact. Existing exchange and transaction history remains preserved in legacy tables rather than converted into the new ledger. Resolve any future historical credit policy explicitly; do not silently mint or discard credits.
+- Verify the exact Vercel project, production domain, Auth redirects, and environment settings before deployment. Keep the current production app available until the updated build and core journey pass preview checks.
 - Choose the membership boundary. Signup currently permits any person who can complete email confirmation; it is not an invite-only community or a member-approval system. If the first group should be closed, arrange a controlled invitation path before sharing the public URL.
 - Provision at least one trusted facilitator using the documented privileged setup. The application cannot grant facilitator roles. Do not open community-fund requests until someone is responsible for reviewing them and the group has agreed on decision rules.
 - Publish short community rules covering the one-hour/one-credit rule, the two-credit welcome grant for new accounts, privacy, consent and boundaries, cancellations, disputes, and what to do if help is not completed. Decide how existing members with zero or legacy balances participate; do not grant replacement credits ad hoc.
 
-**Exit gate:** preview checks pass with two members and a third-party privacy check; balances match the ledger; the first facilitator, member boundary, welcome-credit policy, and support contact are known. Do not treat local test success or a successful production build as proof of hosted readiness.
+**Exit gate:** mail and authentication work in the deployed preview; two members complete an exchange and a third-party privacy check passes; account balances match the signed ledger; full recovery expectations are documented; the first facilitator, member boundary, welcome-credit policy, and support contact are known. Do not treat local test success or a successful production build as proof of hosted readiness.
 
 ## P1 — Run a deliberately small pilot
 
@@ -51,4 +53,4 @@ After the first handful of real exchanges, prioritize fixes that remove demonstr
 
 ## Review limits
 
-This roadmap is based on the current source, migrations, tests, and project handoff documents. It is a product and launch review, not a hosted security review. No hosted database migration, real-account browser journey, email delivery, or production release is claimed as verified.
+This roadmap is based on the current source, migrations, tests, and project handoff documents. It is a product and launch review, not a hosted security review. The hosted SQL migrations and postflight checks are complete; real-account browser journeys, email delivery, full Auth/Storage restore, and production app release are not yet verified.

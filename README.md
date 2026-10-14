@@ -2,7 +2,7 @@
 
 New Future Bank is a community time bank built with Next.js 16 and Supabase. Members share offers and requests, coordinate exchanges, confirm completed help, and track credits in integer minutes. One hour equals one time credit; a new account receives a recorded two-hour welcome grant.
 
-The public page can render without Supabase credentials. Member sign-in and community data require a configured Supabase project with the migrations in this repository. The signed-in journey has not yet been verified against the connected live project, and no migration or deployment has been performed from this checkout.
+The public page can render without Supabase credentials. The connected Supabase project now has the bank schema and RPC migrations applied, with the existing profile and listings preserved. The current production domain still serves the older application build: the updated app has not been deployed, and live signup, email delivery, or a member-to-member exchange has not yet been verified.
 
 ## Requirements and local setup
 
@@ -55,13 +55,13 @@ For email confirmation and password recovery, configure the Supabase Auth redire
 
 Add a preview callback only after confirming the exact preview hostname and that its Vercel environment points to the intended preview Supabase project. Do not enable an unbounded wildcard for unknown preview hosts. Google sign-in also requires the provider settings in Supabase Auth to match that project's configured provider callback.
 
-The signup database trigger creates the profile and welcome-ledger entry when the auth user is created. Confirmation delivery, OAuth, password reset, and the full member exchange flow still need verification against a real preview project before onboarding or release.
+The signup database trigger creates the profile and welcome-ledger entry when the auth user is created. Production Auth redirect URLs are configured. Email delivery is not ready yet: the Resend sender domain is pending verification, and SMTP plus the matching confirmation and recovery templates remain to be configured. Google OAuth is disabled in Supabase; the updated app hides that option until a provider is enabled. Verify signup, recovery, and a full member exchange against the hosted project before onboarding.
 
 ## Deployment target and status
 
 The recorded Vercel target is the existing **`future-bank`** project in scope **`novas-projects-c5420b8e`**, project ID **`prj_O0wo6gqYzDOLQ6X3Ramg4TrgU5B9`**. There is also a separate `future-bank-org` project; do not select it. The local Vercel CLI is linked to the exact target and the public environment was retrieved into ignored `.env.local`; values are not stored in this documentation. The associated Supabase project reference is `aitnqoqdkhvlgxuujowb` in TheVillage organization. The restored project responds to database and Auth API requests. The domain currently associated with this product is [newfuturebank.com](https://newfuturebank.com/).
 
-The public Supabase SDK connection has been verified and one profile row was observed; this is connectivity evidence only, not an authenticated app or access-control check. The hosted project was restored, but the bank schema migrations are absent. Local desktop/mobile visual and accessibility QA is complete, as are both disposable-PostgreSQL concurrency scenarios (competing spends and duplicate completion). The local QA dashboard fixture runs on port 3001 only when `BANK_QA_FIXTURE=1`; its UI and API are read-only in that mode. No live migration, authenticated end-to-end flow, or production deployment has been performed. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the remaining release gates.
+The exact Vercel project, production branch (`main`), Node.js 22 runtime, and existing domain association have been verified. Both bank migrations were applied to the connected Supabase project through the Management API. Postflight checks passed; the original profile, offer, want, and four Auth references were preserved, and all four account balances and corresponding opening ledger amounts are zero minutes, with no discrepancies. A scoped data/schema snapshot was restored into a native PostgreSQL clone, but a complete platform backup including Auth credentials and Storage has not been verified. Local lint, typecheck, helper/PGlite tests, build, and disposable-PostgreSQL concurrency checks pass. No authenticated hosted journey or new app deployment has occurred. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for current status and remaining gates.
 
 ## Historical documents
 
