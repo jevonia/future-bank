@@ -1,6 +1,6 @@
 # New Future Bank handoff
 
-Updated October 14, 2026. The new app is deployed and hosted synthetic QA has passed. Synthetic records have been cleaned up and the original fund baseline restored. Finish PR/main alignment and verify delivery/setup for the accepted member email without exposing personal or credential details.
+Updated October 14, 2026. The new app is deployed and hosted synthetic QA has passed. Synthetic records have been cleaned up and the original fund baseline restored. Verify delivery/setup for the accepted member email without exposing personal or credential details.
 
 ## Product rules
 
@@ -8,11 +8,13 @@ New Future Bank is a community time bank. One hour is 60 integer minutes, or one
 
 ## Source, CI, and deployment
 
-Commit `d864c6f` has been pushed. CI passed at [GitHub Actions run 38622472265](https://github.com/jevonia/future-bank/actions/runs/38622472265). Final PR/main alignment is still pending, so do not describe the work as merged or settled on `main` until confirmed.
+Commit `d864c6f` has been pushed. CI passed at [GitHub Actions run 38622472265](https://github.com/jevonia/future-bank/actions/runs/38622472265). The release was merged through [PR #1](https://github.com/jevonia/future-bank/pull/1) into main at `bf80508`; [main CI run 38629341354](https://github.com/jevonia/future-bank/actions/runs/38629341354) passed. The production deployment was automatically built from that merge and is READY. Later documentation-only updates retain the same application source.
 
-Production deployment `dpl_2JumS368PxYf6uw8w5uJEQMnUhAN` is READY at [newfuturebank.com](https://newfuturebank.com/). The target remains Vercel project `future-bank`, ID `prj_O0wo6gqYzDOLQ6X3Ramg4TrgU5B9`, scope `novas-projects-c5420b8e`; do not select `future-bank-org`. Production smoke checks passed: provider discovery reports Google disabled, `/qa/dashboard` returns 404, anonymous community API access returns 401, and cross-origin mutation returns 403.
+Production deployment `dpl_5KN846JAkvzBDvtAqZnga5FUYPxe` is READY at [newfuturebank.com](https://newfuturebank.com/). The target remains Vercel project `future-bank`, ID `prj_O0wo6gqYzDOLQ6X3Ramg4TrgU5B9`, scope `novas-projects-c5420b8e`; do not select `future-bank-org`. Production smoke checks passed: provider discovery reports Google disabled, `/qa/dashboard` returns 404, anonymous community API access returns 401, and cross-origin mutation returns 403.
 
 Local lint, typecheck, 11 helper tests, PGlite migration/security tests, production build, and native PostgreSQL concurrency tests pass. Keep private environment and QA files under ignored `.private/`, `.env.local`, or `.vercel/`; never commit, display, or copy their contents into tracked docs.
+
+Temporary local Supabase/Resend token files, downloaded production env copy, and QA password/session artifacts were removed after completion. The configured remote SMTP sending key remains active; the scoped rollback snapshot and sanitized verification evidence remain private. Operational scripts requiring those temporary credentials need fresh authorized access before future use.
 
 ## Supabase state
 
@@ -34,7 +36,7 @@ Synthetic Auth users and associated community records have been removed, and the
 
 ## Next steps
 
-1. Confirm PR/main alignment and that the deployed change is represented by the intended release commit. Record any CI run for the final SHA.
+1. Release integration is complete through [PR #1](https://github.com/jevonia/future-bank/pull/1); future changes should use a reviewed branch, passing CI, and the same Vercel project.
 2. Follow up on inbox delivery and account setup for the already accepted member email. Do not claim delivery or password setup without confirmation, and avoid duplicate sends unless requested.
 3. If the community fund will be used during the pilot, test hosted facilitator approval before inviting fund requests. Otherwise, defer fund activity until that check and the group's decision rules are ready.
 4. Retain the Auth/Storage backup limitation in operational notes until a full recovery path is verified.

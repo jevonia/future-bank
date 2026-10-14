@@ -31,3 +31,7 @@ Updated October 14, 2026.
 - `npm run typecheck` and targeted ESLint over the dashboard, exchange/dialog components, and fixture pass. Local database integration and concurrency tests are documented by the root/database handoff; hosted authentication and two-member browser journeys remain unverified.
 - Read-only product review: the primary exchange flow and credit reservation behavior are represented in the UI. Before a small-community launch, verify the live migration and auth flows, decide whether the pilot is open or invitation-only (signup is currently email-confirmed but otherwise open), and provision a facilitator through a trusted administrative path. Fund review has no self-service role setup, and notifications are in-app only.
 - The launch and community-activation sequence is in [ROADMAP.md](../ROADMAP.md). The current loader has bounded collection sizes; pagination is a follow-up before the pilot outgrows those limits.
+
+## Final release status — October 14, 2026
+
+The earlier notes above are implementation history. The app is now live, PR #1 is merged into main, and main CI passed. Hosted synthetic Auth/community QA passed, temporary data was removed, the final database audit passed, and the designated member setup email was accepted. Inbox delivery and user password setup are unverified. Cancellation and fund approval have local/native coverage but were not exercised in hosted QA. See HANDOFF.md and docs/DEPLOYMENT.md for current operational state.
