@@ -23,4 +23,7 @@ Password recovery sends a PKCE link back through the callback. The reset page ve
 
 `npx eslint` on the auth-owned source paths passed with no warnings.
 
-The local CLI is linked to Supabase project `aitnqoqdkhvlgxuujowb`, and the public environment is present in ignored `.env.local`; values are not recorded here. A read-only `GET /auth/v1/settings` using both the public `apikey` and bearer headers returned HTTP 200; `external.google` was not `true`, so provider discovery correctly reports Google as disabled. No provider setting was changed. The project was restored, and the public SDK connection was verified; bank migrations are not applied, so live signup, confirmation delivery, OAuth, resend, and password reset have not been exercised against the app schema. Before validating those journeys, allow `http://localhost:3001/auth/callback` and the production `/auth/callback` URL in Supabase Auth. Local PostgreSQL concurrency and desktop/mobile QA were reported as passing; no live migration, authenticated app E2E, or production deployment has been performed.
+
+## Final hosted status (2026-10-14)
+
+The hosted project `aitnqoqdkhvlgxuujowb` has SMTP and the branded signup/recovery templates configured. Synthetic signup, confirmation, and recovery passed using the deployed app's actual server callback and reset routes. A one-time setup email for the verified real member was accepted by the provider; inbox delivery and the member's password completion remain unverified. The exact localhost, production, and retained legacy callback redirects are allowlisted. Google OAuth remains disabled. No credentials, tokens, or private provider settings are recorded here.

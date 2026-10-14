@@ -1,8 +1,10 @@
 # New Future Bank database
 
-The authoritative schema is `supabase/migrations/20261014000100_bank_schema.sql` followed by `20261014000200_bank_rpcs.sql`. Apply both in order with Supabase migrations or `psql -v ON_ERROR_STOP=1` against a **backup or preview project first**. These migrations have not been run against the live project. Do not paste the older root-level database Markdown examples into Supabase: those examples grant direct balance edits.
+The authoritative schema is `supabase/migrations/20261014000100_bank_schema.sql` followed by `20261014000200_bank_rpcs.sql`. Both were applied to the live Supabase project on October 14, 2026 in one reviewed, guarded transaction. Supabase's `supabase_migrations.schema_migrations` records versions `20261014000100` and `20261014000200`. A 14-query live postflight passed: original rows and Auth references were preserved, accounts and opening ledger entries reconcile, RLS and grants are narrow, and the bank functions have pinned empty search paths. Do not reapply these files or paste the older root-level database Markdown examples into Supabase; the older examples grant direct balance edits.
 
-## Before applying to an existing project
+Before that live application, the original public tables and relevant Auth references were captured in a private scoped rollback snapshot, restored on disposable PostgreSQL, and used to test the exact migration request. That snapshot covers the objects and records affected by this migration; it is **not** a complete Supabase Auth, Storage, or disaster-recovery backup. The live postflight and later read-only audit are saved privately in `.private/` and are not committed.
+
+## For future migrations on an existing project
 
 Take a restorable database backup and run the read-only [`supabase/inspect/preflight.sql`](../supabase/inspect/preflight.sql) against the actual project. It reports table shapes, policies, role grants, auth triggers, migration versions, aggregate row counts, and legacy balance conversion risks without printing member details. Inspect `public.profiles`, `offers`, `wants`, `exchanges`, and `transactions` before applying anything. The migration supports the documented original `profiles/offers/wants` shape and retains their rows. If a documented legacy `exchanges` table with `time_credits` exists, it is renamed to `legacy_exchanges`; `transactions` and its foreign keys remain intact. Legacy exchange/transaction writes and reads by clients are revoked. Review those rows and decide separately how to reconcile them with the new minute ledger. Do not recreate old credit functions after migration.
 
@@ -64,4 +66,4 @@ where not exists (
 );
 ```
 
-Both queries should return no mismatches/zero missing initial entries. Do not deploy until the preview migration and full signed-in flows have been verified against the actual Supabase project.
+Both queries should return no mismatches/zero missing initial entries. For future schema changes, test a restorable backup or preview clone first, review the migration against the actual live shape, and verify signed-in flows and ledger integrity before deploying dependent code.

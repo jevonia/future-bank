@@ -2,6 +2,8 @@
 
 Reviewed October 14, 2026. Source: local `main` at `e52af16`; live public homepage: https://newfuturebank.com/.
 
+This is the historical audit of the original application, before the revival changes. The findings below describe that earlier snapshot. The replacement application is now deployed and its hosted synthetic Auth/community checks passed; see [deployment status](docs/DEPLOYMENT.md) and [roadmap](docs/ROADMAP.md) for the current state and remaining work.
+
 ## Assessment
 
 This is the right repository. It contains a compact Next.js/Supabase application for a community time bank. The foundation is reusable, but the product currently stops before its central promise: two people completing an exchange of help and recording the hours.

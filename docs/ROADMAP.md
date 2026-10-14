@@ -4,22 +4,22 @@ Updated October 14, 2026. This roadmap is for reviving the existing time-bank co
 
 ## Current read
 
-The connected production Supabase project now has both bank migrations applied. Postflight checks passed; existing account and listing data were preserved, and all four account balances and corresponding opening ledger amounts were zero minutes with no discrepancies. A scoped SQL/data snapshot was restored into disposable PostgreSQL, but full platform recovery for Auth credentials and Storage has not been verified. The app source and local integration/concurrency checks cover the core exchange, reservation-aware integer-minute ledger, listings, private exchange threads, projects, fund actions, and urgent alerts.
+The connected production Supabase project has both bank migrations applied and passed postflight checks. Existing account/listing data was preserved; at migration postflight the four existing accounts and opening ledger amounts were zero minutes with no discrepancy. Hosted synthetic QA later added records, which have since been removed; the original fund baseline was restored. The deployed app is READY at `newfuturebank.com`. Production smoke checks passed, and hosted synthetic-user QA passed for signup, confirmation, recovery, privacy, reservation, donation/idempotency, settlement, projects, and urgent notifications. Local helper/PGlite and native PostgreSQL concurrency suites pass, and CI passed for pushed commit `d864c6f`.
 
-The updated app has not been deployed. The production domain still serves the old build, so no hosted signup, email delivery, recovery, OAuth, or member exchange has been verified. The sender domain `auth.newfuturebank.com` is pending verification; SMTP and the new confirmation/recovery templates are not active. Google OAuth is disabled. The implementation checkpoint is `6e5fe6e` on `codex/new-future-bank-revival`; it has not been pushed, and auth callback/template work remains uncommitted. See [Deployment status](DEPLOYMENT.md) for exact gates.
+Synthetic QA accounts and records have been removed, and the original fund baseline was restored. The real member setup message was accepted by the sender; inbox delivery and account setup are unverified. Final PR/main alignment remains pending. Hosted cancellation-release and fund-review actions were not tested; native tests passed, and a facilitator is provisioned. Google OAuth remains disabled. A scoped database snapshot was restored successfully, but full Supabase Auth credential and Storage recovery has not been verified. See [Deployment status](DEPLOYMENT.md) for the precise scope of verification.
 
 ## P0 — Establish a safe launch boundary
 
-Before inviting members to use the updated app:
+Before broader member onboarding:
 
-- Complete hosted-mail setup, commit and push the matching callback/template code, and deploy a tested preview before replacing the live app. Test signup, confirmation, sign-in, sign-out, recovery, profile editing, and the complete exchange with synthetic confirmed members. Verify a third member cannot read private messages, fund requests, or another member's ledger; verify reserved funds cannot be spent twice.
-- Review the completed production migration evidence and the scoped recovery artifact. Existing exchange and transaction history remains preserved in legacy tables rather than converted into the new ledger. Resolve any future historical credit policy explicitly; do not silently mint or discard credits.
-- Verify the exact Vercel project, production domain, Auth redirects, and environment settings before deployment. Keep the current production app available until the updated build and core journey pass preview checks.
+- Verify PR/main alignment for the deployed code and follow up on delivery of the already accepted member setup message. Do not send a duplicate unless requested; account setup is not confirmed.
+- Keep the production migration evidence and scoped recovery limitations recorded. Existing exchange and transaction history remains preserved in legacy tables rather than converted into the new ledger. Resolve any future historical credit policy explicitly; do not silently mint or discard credits.
+- The production app, SMTP, confirmation/recovery templates, and hosted core exchange have already passed synthetic QA. Keep Google sign-in disabled unless its provider is configured and tested. Hosted fund review remains unverified; test it with the provisioned facilitator or defer fund use until it is.
 - Choose the membership boundary. Signup currently permits any person who can complete email confirmation; it is not an invite-only community or a member-approval system. If the first group should be closed, arrange a controlled invitation path before sharing the public URL.
-- Provision at least one trusted facilitator using the documented privileged setup. The application cannot grant facilitator roles. Do not open community-fund requests until someone is responsible for reviewing them and the group has agreed on decision rules.
+- Confirm the provisioned facilitator is the trusted community contact and that the group has agreed on fund-request rules. The application cannot grant facilitator roles. The hosted approval path still needs a test before opening fund requests.
 - Publish short community rules covering the one-hour/one-credit rule, the two-credit welcome grant for new accounts, privacy, consent and boundaries, cancellations, disputes, and what to do if help is not completed. Decide how existing members with zero or legacy balances participate; do not grant replacement credits ad hoc.
 
-**Exit gate:** mail and authentication work in the deployed preview; two members complete an exchange and a third-party privacy check passes; account balances match the signed ledger; full recovery expectations are documented; the first facilitator, member boundary, welcome-credit policy, and support contact are known. Do not treat local test success or a successful production build as proof of hosted readiness.
+**Exit gate:** synthetic QA records are cleaned up, the live branch/PR state is settled, and the real member confirms receipt/setup or reports a blocker. Before treating the community fund as part of the pilot, the hosted facilitator approval path and group decision rules must also be verified. Full Auth/Storage recovery remains a known operational limitation.
 
 ## P1 — Run a deliberately small pilot
 
@@ -38,7 +38,7 @@ Use learning signals, not growth targets: Did members find a match? How long did
 After the first handful of real exchanges, prioritize fixes that remove demonstrated friction or protect trust:
 
 - Add pagination or load-more controls for marketplace, exchanges, messages, notifications, ledger, and contributions before the current bounded queries can hide relevant history. The loader caps several collections (for example, 200 exchanges and 200 ledger entries); this is acceptable only for an initial small pilot.
-- Add hosted browser coverage for the account and exchange journeys, including retry behavior, reservation release, low available balance, two-party confirmation, and privacy between participants.
+- Preserve the successful hosted synthetic QA as repeatable regression coverage where practical, including retry behavior, reservations, low available balance, two-party confirmation, and privacy between participants. Cancellation-release behavior is currently covered by native tests only; add a hosted check separately. The one-off hosted checks are not a substitute for CI coverage.
 - Decide whether verified email is enough for the group's membership boundary. If not, implement and test a real invitation/approval mechanism before expanding beyond the original circle.
 - Improve notification delivery only after asking members which channels they want and what they consider urgent. Preserve opt-in and avoid sending private exchange details to a shared channel.
 - Move avatars to object storage if profile data URLs become a practical size or moderation problem.
@@ -53,4 +53,4 @@ After the first handful of real exchanges, prioritize fixes that remove demonstr
 
 ## Review limits
 
-This roadmap is based on the current source, migrations, tests, and project handoff documents. It is a product and launch review, not a hosted security review. The hosted SQL migrations and postflight checks are complete; real-account browser journeys, email delivery, full Auth/Storage restore, and production app release are not yet verified.
+This roadmap is based on the current source, migrations, tests, and project handoff documents. It is a product and activation plan, not a hosted security review. The production SQL migration, app deployment, hosted synthetic Auth/email/core-community QA, synthetic-data cleanup, and CI run are complete. Sender acceptance of the real member setup message is confirmed, but inbox delivery/account setup, final PR/main alignment, hosted cancellation release, hosted fund approval, and complete Auth/Storage restore are not yet verified.

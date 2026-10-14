@@ -1,54 +1,49 @@
 # New Future Bank handoff
 
-Updated October 14, 2026. Work is active. Preserve the existing Vercel project, domain, Supabase data, and member balances. Do not expose credential values or commit local private artifacts.
+Updated October 14, 2026. The new app is deployed and hosted synthetic QA has passed. Synthetic records have been cleaned up and the original fund baseline restored. Finish PR/main alignment and verify delivery/setup for the accepted member email without exposing personal or credential details.
 
-## Goal and product rules
+## Product rules
 
-Revive New Future Bank as a community time bank: members post offers and requests, coordinate privately, and confirm completed help. One hour is 60 integer minutes, or one time credit. New accounts receive a recorded two-hour welcome grant. Existing balances are preserved. Accepting an exchange reserves the requester's minutes; a donation cannot spend reserved minutes; both people must confirm before settlement; cancellation releases the reservation. Project contributions record volunteer time and do not mint member credits. Facilitators must be provisioned through a trusted administrative path.
+New Future Bank is a community time bank. One hour is 60 integer minutes, or one time credit. New accounts receive a recorded two-hour welcome grant; existing balances are preserved. Accepting an exchange reserves the requester's minutes, cancellation releases the reservation, and the balance transfer occurs only after both participants confirm. Project contributions record volunteer hours without minting personal credits. Facilitator roles require trusted administrative provisioning.
 
-## Source and change state
+## Source, CI, and deployment
 
-The implementation checkpoint is commit `6e5fe6e` on branch `codex/new-future-bank-revival`. It has not been pushed and there is no PR or new deployment. The matching production domain still serves the older app build. The latest changes to the auth callback, templates, callback tests, and documentation are in the shared worktree and need review, commit, push, and CI. Local lint, typecheck, 11 helper tests, PGlite database tests, production build, and disposable PostgreSQL concurrency checks pass.
+Commit `d864c6f` has been pushed. CI passed at [GitHub Actions run 38622472265](https://github.com/jevonia/future-bank/actions/runs/38622472265). Final PR/main alignment is still pending, so do not describe the work as merged or settled on `main` until confirmed.
 
-Important implementation files include:
+Production deployment `dpl_2JumS368PxYf6uw8w5uJEQMnUhAN` is READY at [newfuturebank.com](https://newfuturebank.com/). The target remains Vercel project `future-bank`, ID `prj_O0wo6gqYzDOLQ6X3Ramg4TrgU5B9`, scope `novas-projects-c5420b8e`; do not select `future-bank-org`. Production smoke checks passed: provider discovery reports Google disabled, `/qa/dashboard` returns 404, anonymous community API access returns 401, and cross-origin mutation returns 403.
 
-- `src/app/auth/callback/route.ts` and `src/lib/auth-callback.ts` for PKCE, token-hash confirmation, recovery, and safe redirects.
-- `supabase/templates/confirm-signup.html` and `supabase/templates/reset-password.html` for the matching email templates. Deploy the callback implementation before installing templates that use token-hash callbacks.
-- `tests/auth-callback.test.ts` for callback behavior.
-- `supabase/migrations/20261014000100_bank_schema.sql` and `supabase/migrations/20261014000200_bank_rpcs.sql` for the bank schema and atomic RPCs.
-- `docs/DEPLOYMENT.md`, `docs/DATABASE.md`, `docs/ROADMAP.md`, and `EMAIL_SETUP_GUIDE.md` for operational and product guidance.
+Local lint, typecheck, 11 helper tests, PGlite migration/security tests, production build, and native PostgreSQL concurrency tests pass. Keep private environment and QA files under ignored `.private/`, `.env.local`, or `.vercel/`; never commit, display, or copy their contents into tracked docs.
 
-## Hosted database and recovery
+## Supabase state
 
-The Supabase project is `aitnqoqdkhvlgxuujowb` in TheVillage organization. Both bank migrations were applied atomically through the Management API. Fourteen postflight checks passed. The existing profile, offer, want, and four Auth references were preserved. Four accounts have zero-minute balances, with matching zero-minute opening ledger entries; no ledger discrepancies were found. Do not reapply these migrations.
+Supabase project `aitnqoqdkhvlgxuujowb` in TheVillage organization has migrations `20261014000100_bank_schema.sql` and `20261014000200_bank_rpcs.sql` applied. Fourteen postflight checks passed. The original profile/listing data and four Auth references were preserved. At migration postflight, the four existing accounts and their opening ledger amounts were zero minutes, with no discrepancy. Synthetic QA records were added after that check and have since been removed; the original fund baseline was restored. Do not reapply the migrations.
 
-The postflight verifier initially disagreed over how an empty `search_path` was represented. That was a verifier-format issue only; it required no database patch. The final postflight reported 14 passing checks.
+A scoped snapshot of affected public objects/data and Auth references was restored into native PostgreSQL, and a native clone dump restored independently. This does not cover a full Supabase restore of Auth credentials and Storage. Keep the recovery limitation explicit; the scoped SQL snapshot is not a full platform backup.
 
-A scoped snapshot of the changed public objects/data and Auth references was restored into a disposable native PostgreSQL instance; a native clone dump was also restored independently. The Supabase project did not expose a full platform backup. Auth credential and Storage recovery are not covered by the scoped snapshot, so do not describe it as a full-project backup or verified disaster-recovery plan. Local evidence and operational scripts remain under ignored `.private/`, including the legacy snapshot/restore material and the verifier. Keep this directory out of Git and never print its contents.
+## Hosted Auth and email
 
-## Hosting and authentication
+The production Auth site URL and four exact callback URLs are configured. Public DNS checks match the Resend records, but the last dashboard status was **Pending**. SMTP and the signup-confirmation/recovery templates are configured, and actual signup/recovery emails were accepted. Hosted Auth QA passed three signups, email confirmation, server-side profile creation, and password recovery: the old password failed and the new password succeeded. The designated member setup message was accepted by the sender; inbox delivery and account setup remain unverified.
 
-The Vercel target is `future-bank`, project ID `prj_O0wo6gqYzDOLQ6X3Ramg4TrgU5B9`, scope `novas-projects-c5420b8e`. The separate `future-bank-org` project is not the target. The repository is linked to the intended project; production branch `main`, Node.js 22, and the existing `newfuturebank.com` domain association were verified. Development environment values are in ignored `.env.local`; the production environment was pulled to a private local file. Never copy values into docs or logs.
+Google OAuth remains disabled because no provider client is configured. The deployed app hides Google sign-in while the Supabase provider is disabled. Do not report Google login as available.
 
-The Supabase site URL and four exact callback URLs were configured and verified. Hosted signup is enabled, email confirmation is required, and Google OAuth is disabled. The old production app still displays a Google button, while the new source hides it unless Supabase reports an enabled provider. No Google OAuth client credentials have been found or configured.
+## Hosted community QA
 
-Resend is connected through the user's GitHub sign-in. Its local API key is sending-only. The sender domain `auth.newfuturebank.com` has been created and all three DNS records were added through the existing Vercel DNS zone; public DNS matches the expected records. Resend still reports the domain as **Pending**. SMTP and templates are not yet configured, and no confirmation or recovery email has been delivered in a hosted test.
+Synthetic hosted checks passed privacy boundaries, accepted-exchange reservation, donation and idempotency, settlement, project contributions, and urgent notifications. Hosted cancellation release was not tested; native/local cancellation tests passed. The hosted fund-review action was skipped even though a facilitator role has since been provisioned; native/local fund tests passed. Do not include the facilitator's email or personal account details in tracked documentation.
 
-The user has not selected which existing account should receive the facilitator role. Do not grant it until the user identifies the intended member. The app has no self-service role assignment. Community-fund review should remain out of the pilot until a facilitator and the group's request/approval rules are established.
+Synthetic Auth users and associated community records have been removed, and the original fund baseline restored. QA cleanup is complete. The real member setup/onboarding email was accepted by the sender; verify inbox delivery and member account setup without sending a duplicate unless needed.
 
-## Next work
+## Next steps
 
-1. Check Resend domain verification using the existing private DNS checker. Once verified, configure Supabase SMTP and install the two templates from `supabase/templates/`.
-2. Commit and push the auth callback/template work, open a PR against the intended branch, and confirm CI. Deploy to a preview using the exact Vercel project and intended Supabase environment.
-3. Run hosted synthetic-account checks for signup, confirmation, sign-in/out, recovery, resend, and the complete exchange. Use three accounts to verify that a nonparticipant cannot access private messages, fund requests, or another member's ledger. Cover reservations, cancellation release, both confirmations, and exact ledger totals.
-4. If the user wants Google sign-in, configure a Google OAuth client and its Supabase callback, then test it. Otherwise, leave Google disabled.
-5. Ask the user to identify the facilitator account before granting the role through a trusted administrative route. Keep fund review disabled in the pilot if no facilitator or agreed policy is ready.
-6. Remove synthetic accounts and related community records after testing. Review local `.private/` tokens, keys, and session artifacts; delete or rotate them when no longer needed without exposing their contents.
-7. Deploy the reviewed commit to the existing production Vercel project only after hosted preview checks pass. Verify the production hostname and one controlled exchange, then record exactly what was tested.
+1. Confirm PR/main alignment and that the deployed change is represented by the intended release commit. Record any CI run for the final SHA.
+2. Follow up on inbox delivery and account setup for the already accepted member email. Do not claim delivery or password setup without confirmation, and avoid duplicate sends unless requested.
+3. If the community fund will be used during the pilot, test hosted facilitator approval before inviting fund requests. Otherwise, defer fund activity until that check and the group's decision rules are ready.
+4. Retain the Auth/Storage backup limitation in operational notes until a full recovery path is verified.
 
-## Guardrails
+## Relevant files
 
-- Root owns integration, hosting, and browser/server operations. Do not start another server or take over the shared browser without coordination.
-- Keep `.private/`, `.env.local`, `.vercel/`, and downloaded production environment files ignored and uncommitted.
-- Use [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for migration/release gates, [`docs/DATABASE.md`](docs/DATABASE.md) for SQL behavior, and [`docs/ROADMAP.md`](docs/ROADMAP.md) for the pilot sequence. Historical root-level SQL setup documents are not runnable instructions.
-- The local `/qa/dashboard` fixture is read-only and works only in development with `BANK_QA_FIXTURE=1`; never use its records as production evidence.
+- `src/app/auth/callback/route.ts`, `src/lib/auth-callback.ts`, and `tests/auth-callback.test.ts` cover the Auth callback flows.
+- `supabase/templates/confirm-signup.html` and `supabase/templates/reset-password.html` are the configured email templates.
+- `supabase/migrations/20261014000100_bank_schema.sql` and `supabase/migrations/20261014000200_bank_rpcs.sql` are already applied to the hosted project.
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) records exact deployment and QA status; [`docs/DATABASE.md`](docs/DATABASE.md) explains the SQL contract; [`docs/ROADMAP.md`](docs/ROADMAP.md) records the activation plan.
+
+Root owns live hosting, database, email, and browser operations. Coordinate before using the shared browser or changing hosted state. The development-only `/qa/dashboard` fixture requires `BANK_QA_FIXTURE=1`; it is read-only and never counts as production evidence.

@@ -4,7 +4,7 @@ This is the current guide for configuring signup confirmation and password recov
 
 ## Current status
 
-The live Auth settings were checked read-only: signup and email auth are enabled, auto-confirm is disabled, and Google is disabled. The Auth redirect allow list contains the local callback URLs and the production callback; a legacy Vercel callback is retained in the hosted settings. SMTP configuration/provider and email delivery have not been verified. Supabase's built-in email service can be rate-limited and is intended for evaluation, so production delivery needs an approved SMTP provider and sender-domain setup. No live setting has been changed by this repository work.
+The live Auth settings were checked read-only: signup and email auth are enabled, auto-confirm is disabled, and Google is disabled. SMTP and the branded signup/recovery templates are configured in the hosted project. Synthetic hosted signup, email confirmation, and recovery were exercised through the app's real server callback/reset paths and passed. The provider accepted one authorized real-member setup email, but inbox delivery and the member's password completion have not been verified. The exact localhost, production, and retained legacy callback redirects are allowlisted. SMTP credentials and other private provider settings are not stored here.
 
 The verified production Site URL is `https://newfuturebank.com`. Keep the callback allow list narrow and include the exact URLs used by the app:
 
@@ -29,11 +29,11 @@ Do not change the template links to `href="{{ .TokenHash }}"`: a token hash is n
 
 ## SMTP and delivery
 
-SMTP credentials are private operational settings and are not stored in the repository. Select an approved provider, verify sender-domain ownership and DNS authentication, and configure SMTP in the Supabase project only after the account owner authorizes that change. Do not place SMTP credentials in `NEXT_PUBLIC_*` variables, templates, commits, or support messages. Delivery, sender identity, throughput, bounce handling, and provider-specific configuration remain unverified.
+SMTP credentials are private operational settings and are not stored in the repository. The hosted project has SMTP configured and the provider accepted the tested messages, including the authorized member setup message. Provider acceptance does not confirm inbox delivery; that and the recipient's password completion remain unverified. Do not place SMTP credentials in `NEXT_PUBLIC_*` variables, templates, commits, or support messages.
 
 ## Validation before launch
 
-After the project owner configures a sender and installs the templates, validate on a preview project first:
+For future template or SMTP changes, validate on a preview project first:
 
 1. Create a new account and verify the message links to the matching local or preview origin and returns through `/auth/callback`.
 2. Resend signup confirmation and verify the link still confirms the account.
@@ -41,4 +41,4 @@ After the project owner configures a sender and installs the templates, validate
 4. Confirm expired/reused links show the app's explanatory error page.
 5. Check desktop and mobile email clients, including plain link fallback if the provider rewrites links. Disable click tracking for these authentication links if it alters their destination.
 
-Live signup, confirmation delivery, recovery, and SMTP delivery have not yet been exercised end-to-end. No live auth settings, templates, or mail were changed during implementation. For the wider release state, see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) and [`HANDOFF.md`](HANDOFF.md).
+Synthetic hosted signup, confirmation, and recovery passed through the production app's server callback/reset paths. The real-member setup message was accepted by the SMTP provider; inbox delivery and password completion are unverified. Google remains disabled, and the configured callback URLs are allowlisted. For wider release status, see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) and [`HANDOFF.md`](HANDOFF.md).
