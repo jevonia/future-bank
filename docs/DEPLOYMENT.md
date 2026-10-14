@@ -1,0 +1,43 @@
+# Deployment and release status
+
+Updated October 14, 2026. The bank migrations are live and the new app is deployed at the existing production domain. Production smoke checks, hosted email/authentication QA, and hosted core-community QA have passed for synthetic users. Synthetic QA accounts and records have been cleaned up and the original fund baseline restored. The real member setup email was accepted by the sender, but inbox delivery and account setup are unverified. Final PR/main alignment remains pending.
+
+## Current state
+
+- **Vercel:** target `future-bank`, project ID `prj_O0wo6gqYzDOLQ6X3Ramg4TrgU5B9`, scope `novas-projects-c5420b8e`. Do not select the separate `future-bank-org` project. The production branch setting is `main`; Node.js 22 and the existing `newfuturebank.com` association were verified. Production deployment `dpl_2JumS368PxYf6uw8w5uJEQMnUhAN` is READY. Production smoke checks passed: provider discovery reports Google disabled, `/qa/dashboard` returns 404, anonymous community API access is denied with 401, and a cross-origin mutation is denied with 403.
+- **Supabase:** project `aitnqoqdkhvlgxuujowb` in TheVillage organization. Migrations `20261014000100_bank_schema.sql` and `20261014000200_bank_rpcs.sql` were applied atomically through the Management API. Fourteen postflight checks passed. Existing profile/listing data and four Auth references were preserved. At migration postflight, four existing account balances and corresponding opening ledger amounts were zero minutes with no discrepancy. Synthetic QA later added records; those records have since been removed and the original fund baseline restored. Do not reapply these migrations.
+- **Recovery evidence:** the scoped snapshot of affected public objects/data and Auth references restored into native PostgreSQL, and a native clone dump restored independently. A complete platform backup/restore covering Auth credentials and Storage has not been verified. Keep that limitation visible before future production changes.
+- **Email and Auth:** public DNS checks match the expected Resend records, though the last Resend dashboard status was **Pending**. SMTP and the confirmation/recovery templates are configured; actual signup and recovery emails were accepted in hosted QA. Hosted Auth QA passed three signups, email confirmations, server-side profile creation, and recovery; the old password failed and the new password succeeded. The designated member's setup message was accepted by the sender; inbox delivery and member account setup are unverified. Production redirects are configured. Google OAuth remains disabled and the deployed UI hides the option.
+- **Hosted community QA:** synthetic-user checks passed for privacy, accepted-exchange reservation, donation/idempotency, settlement, project contributions, and urgent notifications. Cancellation-release behavior was not tested in hosted QA; native tests cover it. The hosted fund-review path was skipped; local/native fund tests passed. A facilitator role has been provisioned to the designated existing account. Do not put the member's email or other personal account detail in tracked documentation.
+- **Source and CI:** commit `d864c6f` has been pushed. CI passed at [GitHub Actions run 38622472265](https://github.com/jevonia/future-bank/actions/runs/38622472265). Final PR/main alignment is still pending; do not describe the change as merged or aligned with `main` until confirmed.
+- **Completed cleanup:** synthetic Auth users and related community QA records were removed, and the original fund baseline was restored.
+- **Still pending:** complete PR/main alignment and verify inbox delivery/account setup for the accepted member setup message. Do not resend automatically or claim the member completed setup without confirmation.
+
+Private operational files and credentials stay under ignored `.private/`, `.env.local`, or private environment-file paths. Never commit them, display their contents, or copy secrets into logs or documentation. Keep the local Vercel project link uncommitted.
+
+After cleanup, a final read-only audit passed all nine predicates: four real Auth users, profiles, and accounts remain; their balances and four opening ledger entries reconcile at zero minutes; original listings and Auth references are preserved; no QA records or synthetic notifications remain; the fund is zero and the designated facilitator is present.
+
+## Finish-up sequence
+
+1. Retain the post-cleanup verification that synthetic accounts/records are gone and the original fund baseline is restored. Preserve the migration state; do not reapply migrations.
+2. Confirm the final PR and branch target, and verify the change is aligned with `main`. Keep CI run 38622472265 attached to the pushed commit and record any newer run if the commit changes.
+3. Follow up to verify inbox delivery and account setup for the already accepted member setup message. Avoid sending a duplicate unless the member reports that it is needed.
+4. Recheck the production domain and the deployed core journey after any PR/main or deployment change. Report the exact deployment and hosted flows verified.
+
+## Recorded verification
+
+These local checks pass: `npm run lint`, `npm run typecheck`, `npm run test`, and `npm run build`. The test command runs helper tests and the PGlite schema/RPC integration suite. Native PostgreSQL concurrency scenarios also passed for competing reservations/spends, cancellation release, settlement, and duplicate confirmation. CI is green for commit `d864c6f` at the run linked above.
+
+Hosted checks have also passed for the production smoke cases listed above, three synthetic signup/confirmation/profile/recovery flows, and hosted core exchange/community behavior. Hosted cancellation-release and fund-review were not run; cancellation/release and fund behavior passed native tests. Google OAuth was not tested because the provider is disabled.
+
+## Migration and recovery notes
+
+The installed migrations alter existing profiles, offers, and wants and replace older credit/exchange write paths. Legacy exchange and transaction tables remain preserved rather than silently reconciled into the new ledger. For any future schema change, inspect the live project and migration history with [`supabase/inspect/preflight.sql`](../supabase/inspect/preflight.sql), review the exact SQL, test against a representative environment, and verify a restorable backup before applying it. If live data differs from the tested assumptions, stop and reconcile first. Do not run historical root-level SQL examples or `supabase db reset` against a hosted project.
+
+The snapshot evidence covers the scoped changed public schema/data and Auth references; it is not a full Supabase platform backup. A complete Auth credential and Storage recovery process remains a follow-up before the service is treated as fully recoverable.
+
+## Authentication and deployment guardrails
+
+The production site URL and four exact callback URLs are configured. For a new local or preview environment, add only its exact `/auth/callback` URL and ensure it points to the intended Supabase project. Password recovery returns through the safe `next=/auth/reset-password` path. Avoid broad redirect wildcards. If Google OAuth is later enabled, configure the provider client and callback first, then test it.
+
+The production target remains the existing `future-bank` Vercel project and `newfuturebank.com` domain. Do not create or deploy to the similarly named `future-bank-org` project as a workaround.

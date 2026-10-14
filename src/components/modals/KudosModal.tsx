@@ -1,22 +1,116 @@
-'use client';
-import React from 'react';
-import { SparklesIcon } from '../icons';
-import { kudosOptions, features } from '../../lib/data';
+"use client";
+import { useState } from "react";
+import { Dialog } from "@/components/ui/Dialog";
+import { mutateCommunity } from "@/lib/community-api";
+import { KUDOS_LABELS } from "@/lib/types";
 
-export function KudosModal({ item, onClose, onPayItForward }: { item: any, onClose: () => void, onPayItForward: (item: any) => void }) {
-    if (!item) return null;
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 modal-backdrop" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md modal-content text-center" onClick={e => e.stopPropagation()}>
-                <div className="text-green-500 mx-auto bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mb-4"><SparklesIcon /></div>
-                <h2 className="text-2xl font-bold mb-2">Exchange Complete!</h2>
-                <p className="text-slate-600 mb-6">You completed the request for <span className="font-semibold text-indigo-600">"{item.title}"</span>. Give some kudos to the community member who helped you!</p>
-                <div className="flex flex-wrap justify-center gap-3 mb-8">{kudosOptions.map(kudo => (<button key={kudo} className="px-4 py-2 bg-slate-100 text-slate-700 rounded-full font-medium hover:bg-indigo-100 hover:text-indigo-700 transition">{kudo}</button>))}</div>
-                {features.enablePayItForward && item.category === 'Skills' && (
-                     <button onClick={() => onPayItForward(item)} className="w-full px-6 py-3 mb-3 bg-violet-100 text-violet-800 rounded-lg font-semibold hover:bg-violet-200 transition">Pay this skill forward</button>
-                )}
-                <button onClick={onClose} className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">Done</button>
-            </div>
+export function KudosModal({
+  exchangeId,
+  title,
+  isOpen,
+  onClose,
+  onComplete,
+}: {
+  exchangeId: number | null;
+  title?: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onComplete?: () => void;
+}) {
+  const [labels, setLabels] = useState<string[]>([]);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!exchangeId) return;
+    if (!labels.length) {
+      setError("Choose at least one thank-you label.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      await mutateCommunity("give_kudos", {
+        exchange_id: exchangeId,
+        labels,
+        note: note.trim(),
+      });
+      onComplete?.();
+      onClose();
+    } catch (reason) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : "Your kudos could not be saved. Please try again.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Say thank you"
+      description={
+        title
+          ? `Share what you appreciated about “${title}”.`
+          : "A short note can make a completed exchange feel seen."
+      }
+    >
+      <form onSubmit={submit} className="space-y-4">
+        <fieldset>
+          <legend className="form-label mb-2">
+            Choose what you appreciated
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {KUDOS_LABELS.map((label) => (
+              <label
+                key={label}
+                className={`cursor-pointer rounded-full border px-3 py-2 text-xs font-semibold ${labels.includes(label) ? "border-violet-400 bg-violet-50 text-violet-900" : "border-slate-200 text-slate-600"}`}
+              >
+                <input
+                  className="sr-only"
+                  type="checkbox"
+                  checked={labels.includes(label)}
+                  onChange={() =>
+                    setLabels((current) =>
+                      current.includes(label)
+                        ? current.filter((item) => item !== label)
+                        : [...current, label],
+                    )
+                  }
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <label className="form-label">
+          A personal note
+          <textarea
+            className="form-input min-h-20"
+            maxLength={500}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Thank you for…"
+          />
+        </label>
+        {error && (
+          <p role="alert" className="form-error">
+            {error}
+          </p>
+        )}
+        <div className="flex justify-end gap-2">
+          <button type="button" className="button-secondary" onClick={onClose}>
+            Cancel
+          </button>
+          <button className="button-primary" disabled={busy || !exchangeId}>
+            {busy ? "Saving…" : "Send kudos"}
+          </button>
         </div>
-    );
+      </form>
+    </Dialog>
+  );
 }

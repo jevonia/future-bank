@@ -1,27 +1,11 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import { defineConfig, globalIgnores } from 'eslint/config';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTypescript from 'eslint-config-next/typescript';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-  {
-    rules: {
-      // Convert errors to warnings to allow build to pass
-      '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      'react/no-unescaped-entities': 'off',
-      '@next/next/no-img-element': 'warn',
-      'jsx-a11y/alt-text': 'warn'
-    }
-  }
-];
-
-
-export default eslintConfig;
+export default defineConfig([
+  ...nextVitals,
+  ...nextTypescript,
+  // Forms reset draft state when server-provided values change.
+  { rules: { 'react-hooks/set-state-in-effect': 'off' } },
+  globalIgnores(['.next/**', 'node_modules/**', 'next-env.d.ts']),
+]);

@@ -1,0 +1,7 @@
+.private/**
+.env*
+.git/**
+node_modules/**
+.next/**
+*.tsbuildinfo
+npm-debug.log*

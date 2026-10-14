@@ -1,133 +1,129 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../lib/hooks/useAuth';
+"use client";
 
-interface AddOfferModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    initialData?: any;
-    onOfferAdded?: () => void; // Make this optional
-}
+import { useEffect, useState } from "react";
+import { Dialog } from "@/components/ui/Dialog";
+import { mutateCommunity } from "@/lib/community-api";
+import { CATEGORIES } from "@/lib/types";
 
-export function AddOfferModal({ isOpen, onClose, initialData, onOfferAdded }: AddOfferModalProps) {
-    const { user, supabase } = useAuth();
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [category, setCategory] = useState('Misc');
-    const [loading, setLoading] = useState(false);
+type ListingDraft = {
+  id?: number;
+  title?: string | null;
+  description?: string | null;
+  category?: string | null;
+};
 
-    useEffect(() => {
-        if (initialData) {
-            setTitle(initialData.title);
-            setDescription(initialData.description);
-        } else {
-            setTitle('');
-            setDescription('');
-            setCategory('Misc');
-        }
-    }, [initialData, isOpen]);
+export function AddOfferModal({
+  isOpen,
+  onClose,
+  initialData,
+  onOfferAdded,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  initialData?: ListingDraft;
+  onOfferAdded?: () => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("Skills");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const categoryOptions =
+    initialData?.category &&
+    !CATEGORIES.includes(initialData.category as (typeof CATEGORIES)[number])
+      ? [...CATEGORIES, initialData.category]
+      : CATEGORIES;
 
-    const ensureProfileExists = async () => {
-        if (!user) return false;
-        
-        // Check if profile exists
-        const { data: existingProfile, error: fetchError } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('id', user.id)
-            .single();
+  useEffect(() => {
+    setTitle(initialData?.title || "");
+    setDescription(initialData?.description || "");
+    setCategory(initialData?.category || "Skills");
+    setError("");
+  }, [initialData, isOpen]);
 
-        if (fetchError && fetchError.code === 'PGRST116') {
-            // Profile doesn't exist, create one
-            const { error: insertError } = await supabase
-                .from('profiles')
-                .insert([
-                    {
-                        id: user.id,
-                        username: user.email?.split('@')[0] || 'User',
-                        avatar_url: null,
-                        time_balance: 0.0  // Use double precision
-                    }
-                ]);
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await mutateCommunity("save_listing", {
+        kind: "offer",
+        id: initialData?.id,
+        title: title.trim(),
+        description: description.trim(),
+        category: category.trim() || "Skills",
+      });
+      onOfferAdded?.();
+      onClose();
+    } catch (reason) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : "Your offer could not be saved. Please try again.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
 
-            if (insertError) {
-                console.error('Error creating profile:', insertError);
-                return false;
-            }
-            return true;
-        }
-
-        return !fetchError;
-    };
-
-    const handleSubmit = async (event: React.FormEvent) => {
-        event.preventDefault();
-        if (!user) {
-            alert("You must be logged in to create an offer.");
-            return;
-        }
-        setLoading(true);
-
-        // Ensure profile exists before creating offer
-        const profileExists = await ensureProfileExists();
-        if (!profileExists) {
-            alert('Error: Unable to create or verify user profile. Please try again.');
-            setLoading(false);
-            return;
-        }
-
-        const { error } = await supabase
-            .from('offers')
-            .insert([
-                { 
-                    title, 
-                    description, 
-                    category,
-                    user_id: user.id 
-                }
-            ]);
-
-        if (error) {
-            alert('Error creating offer: ' + error.message);
-        } else {
-            // Add safety check before calling the function
-            if (onOfferAdded && typeof onOfferAdded === 'function') {
-                onOfferAdded();
-            }
-            // Always close the modal after successful submission
-            onClose();
-        }
-        setLoading(false);
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg modal-content" onClick={e => e.stopPropagation()}>
-                <h2 className="text-2xl font-bold mb-4">Add a New Offer</h2>
-                <p className="text-slate-500 mb-6">Describe the skill or service you&apos;d like to provide to the community.</p>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
-                        <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g., Dog Walking" className="w-full p-3 bg-slate-100 rounded-lg border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:outline-none transition" required />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
-                        <textarea rows={3} value={description} onChange={e => setDescription(e.target.value)} placeholder="e.g., Available for 30-minute walks on weekday mornings." className="w-full p-3 bg-slate-100 rounded-lg border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:outline-none transition"></textarea>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-                        <input type="text" value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g., Creative, Tech, Repair" className="w-full p-3 bg-slate-100 rounded-lg border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:outline-none transition" />
-                    </div>
-                    <div className="flex justify-end space-x-4 pt-4">
-                        <button type="button" onClick={onClose} className="px-6 py-2 bg-slate-200 text-slate-800 rounded-lg font-semibold hover:bg-slate-300 transition">Cancel</button>
-                        <button type="submit" className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition" disabled={loading}>
-                            {loading ? 'Saving...' : 'Add Offer'}
-                        </button>
-                    </div>
-                </form>
-            </div>
+  return (
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title={initialData ? "Edit your offer" : "Share something you can offer"}
+      description="Every hour is one time credit. Agree on the time together before you begin."
+    >
+      <form onSubmit={submit} className="space-y-4">
+        <label className="form-label">
+          Offer title
+          <input
+            className="form-input"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            minLength={3}
+            maxLength={120}
+            placeholder="Help set up a phone or laptop"
+            required
+          />
+        </label>
+        <label className="form-label">
+          What would you like people to know?
+          <textarea
+            className="form-input min-h-28"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            minLength={10}
+            maxLength={4000}
+            placeholder="Share what you can help with and when you are usually available."
+            required
+          />
+        </label>
+        <label className="form-label">
+          Category
+          <select
+            className="form-input"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            {categoryOptions.map((option) => (
+              <option key={option}>{option}</option>
+            ))}
+          </select>
+        </label>
+        {error && (
+          <p role="alert" className="form-error">
+            {error}
+          </p>
+        )}
+        <div className="flex justify-end gap-3 pt-2">
+          <button className="button-secondary" type="button" onClick={onClose}>
+            Cancel
+          </button>
+          <button className="button-primary" type="submit" disabled={busy}>
+            {busy ? "Saving…" : initialData ? "Save changes" : "Publish offer"}
+          </button>
         </div>
-    );
+      </form>
+    </Dialog>
+  );
 }

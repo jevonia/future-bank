@@ -1,104 +1,75 @@
 'use client';
-import React, { useState } from 'react';
+
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import type { Profile } from '@/lib/types';
+import { formatCredits } from '@/lib/types';
 import { ProfileSettingsModal } from '../modals/ProfileSettingsModal';
 
 interface HeaderProps {
-    user: User | null;
-    profile: Profile | null;
-    onSignInClick: () => void;
-    onProfileUpdated?: () => void;
+  user: User | null;
+  profile: Profile | null;
+  onSignInClick: () => void;
+  onProfileUpdated?: () => void;
 }
 
 export function Header({ user, profile, onSignInClick, onProfileUpdated }: HeaderProps) {
-    const supabase = createClient();
-    const router = useRouter();
-    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const router = useRouter();
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [signOutError, setSignOutError] = useState('');
+  const displayName = profile?.username || user?.email?.split('@')[0] || 'Community member';
+  const balance = profile?.time_balance || 0;
 
-    const handleSignOut = async () => {
-        await supabase.auth.signOut();
-        router.refresh();
-    };
-    
-    const displayName = profile?.username || user?.email?.split('@')[0] || "Community Member";
-    const balance = profile?.time_balance || 0;
+  const handleSignOut = async () => {
+    setSignOutError('');
+    try {
+      const { error } = await createClient().auth.signOut();
+      if (error) throw error;
+      router.refresh();
+    } catch {
+      setSignOutError('We could not sign you out. Please try again.');
+    }
+  };
 
-    return (
-        <>
-            <header className="bg-white shadow-sm sticky top-0 z-40">
-                <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-                    <div className="flex items-center space-x-4">
-                        <button 
-                            onClick={() => user && setIsProfileModalOpen(true)}
-                            className="relative group"
-                        >
-                            <div className="h-14 w-14 bg-violet-500 rounded-full flex items-center justify-center text-white text-2xl font-bold group-hover:bg-violet-600 transition">
-                                {profile?.avatar_url ? (
-                                    <img 
-                                        src={profile.avatar_url} 
-                                        alt="Avatar" 
-                                        className="h-14 w-14 rounded-full object-cover"
-                                    />
-                                ) : (
-                                    displayName.charAt(0).toUpperCase()
-                                )}
-                            </div>
-                            {user && (
-                                <div className="absolute -bottom-1 -right-1 bg-indigo-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                    </svg>
-                                </div>
-                            )}
-                        </button>
-                        <div>
-                            <h1 className="text-xl font-bold text-slate-900">
-                                {user ? `Welcome, ${displayName}!` : 'Welcome to FutureBank!'}
-                            </h1>
-                            <p className="text-slate-500 text-sm">Your community dashboard.</p>
-                        </div>
-                    </div>
-                    {user ? (
-                         <div className="text-right">
-                            <h2 className="text-sm font-medium text-slate-500">Time Credit Balance</h2>
-                            <p className="text-4xl font-extrabold text-violet-500 balance-glow">{balance.toFixed(1)} TC</p>
-                        </div>
-                    ) : (
-                        <button 
-                            onClick={onSignInClick}
-                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition"
-                        >
-                            Sign In / Sign Up
-                        </button>
-                    )}
-                </div>
-                {user && (
-                    <div className="absolute top-4 right-4 flex space-x-2">
-                        <button 
-                            onClick={() => setIsProfileModalOpen(true)}
-                            className="px-3 py-1 bg-slate-200 text-slate-600 text-xs rounded-full font-semibold hover:bg-slate-300 transition"
-                        >
-                            Profile
-                        </button>
-                        <button 
-                            onClick={handleSignOut}
-                            className="px-3 py-1 bg-slate-200 text-slate-600 text-xs rounded-full font-semibold hover:bg-slate-300 transition"
-                        >
-                            Sign Out
-                        </button>
-                    </div>
-                )}
-            </header>
+  return <>
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+      <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-3 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-3">
+          <div aria-hidden="true" className="flex h-11 w-11 flex-none items-center justify-center rounded-xl bg-indigo-700 text-white">
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4" />
+              <circle cx="12" cy="12" r="9" />
+            </svg>
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-base font-extrabold tracking-tight text-slate-950 sm:text-lg">New Future Bank</p>
+            <p className="hidden text-xs text-slate-500 sm:block">A community where time is shared</p>
+          </div>
+        </div>
 
-            <ProfileSettingsModal 
-                isOpen={isProfileModalOpen}
-                onClose={() => setIsProfileModalOpen(false)}
-                profile={profile}
-                onProfileUpdated={onProfileUpdated}
-            />
-        </>
-    );
+        {user ? <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <div className="hidden text-right sm:block">
+            <p className="max-w-44 truncate text-sm font-semibold text-slate-800">{displayName}</p>
+            <p className="text-xs text-slate-500">{formatCredits(balance * 60)} time credits</p>
+          </div>
+          <button type="button" onClick={() => setIsProfileModalOpen(true)} aria-label="Open profile settings" className="flex h-10 w-10 flex-none items-center justify-center overflow-hidden rounded-full bg-violet-600 font-bold text-white ring-2 ring-violet-100 hover:ring-violet-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700">
+            {profile?.avatar_url ? (
+              /* eslint-disable-next-line @next/next/no-img-element -- member avatars may be external HTTPS URLs or stored data URLs */
+              <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : displayName.charAt(0).toUpperCase()}
+          </button>
+          <button type="button" onClick={() => setIsProfileModalOpen(true)} className="hidden rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 md:inline-flex">Profile</button>
+          <button type="button" onClick={handleSignOut} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Sign out</button>
+        </div> : <button type="button" onClick={onSignInClick} className="rounded-lg bg-indigo-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700">Sign in / Join</button>}
+      </div>
+      {user && <div className="mx-auto flex max-w-screen-xl items-center justify-between px-4 pb-3 sm:hidden">
+        <p className="max-w-[55vw] truncate text-sm font-medium text-slate-700">Hi, {displayName}</p>
+        <p className="rounded-full bg-violet-50 px-3 py-1 text-sm font-bold text-violet-800">{formatCredits(balance * 60)} credits</p>
+      </div>}
+      {signOutError && <p role="alert" className="mx-auto max-w-screen-xl px-4 pb-2 text-sm text-red-700">{signOutError}</p>}
+    </header>
+    <ProfileSettingsModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} profile={profile} onProfileUpdated={onProfileUpdated} />
+  </>;
 }

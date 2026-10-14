@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "../styles/globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "FutureBank | Community Time Exchange",
-  description: "A place to share skills and build community.",
+  title: "New Future Bank | Every hour has equal value",
+  description: "Share skills, ask for help, and strengthen your community. New Future Bank is a time bank where one hour of help equals one time credit.",
 };
 
 export default function RootLayout({
@@ -16,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} font-sans`}>{children}</body>
+      <body className="font-sans">{children}</body>
     </html>
   );
 }

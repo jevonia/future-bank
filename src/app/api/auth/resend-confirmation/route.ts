@@ -1,19 +1,25 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { isSupabaseConfigured } from '@/lib/auth-config';
 
 export async function POST(request: Request) {
   try {
-    const { email } = await request.json();
+    const body = await request.json();
+    const email = typeof body.email === 'string' ? body.email.trim() : '';
     
-    if (!email) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    }
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({ error: 'Email confirmation is unavailable because authentication is not configured.' }, { status: 503 });
     }
 
     const supabase = await createClient();
     
     const { error } = await supabase.auth.resend({
       type: 'signup',
-      email: email,
+      email,
+      options: { emailRedirectTo: `${new URL(request.url).origin}/auth/callback?next=/` },
     });
 
     if (error) {
@@ -21,11 +27,10 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error resending confirmation email:', error);
+  } catch {
     return NextResponse.json(
       { error: 'Failed to resend confirmation email' },
       { status: 500 }
     );
   }
-} 
+}

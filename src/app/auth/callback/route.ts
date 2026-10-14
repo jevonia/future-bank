@@ -1,21 +1,26 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { parseAuthCallbackInput } from '@/lib/auth-callback';
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/';
+  const requestUrl = new URL(request.url);
+  const origin = requestUrl.origin;
+  const callback = parseAuthCallbackInput(requestUrl.searchParams);
 
-  if (code) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+  if (callback) {
+    try {
+      const supabase = await createClient();
+      const { error } = callback.kind === 'code'
+        ? await supabase.auth.exchangeCodeForSession(callback.code)
+        : await supabase.auth.verifyOtp({
+          token_hash: callback.tokenHash,
+          type: callback.type,
+        });
+      if (!error) return NextResponse.redirect(new URL(callback.nextPath, origin));
+    } catch {
+      // Route all callback failures to an explanatory page.
     }
   }
 
-  
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+  return NextResponse.redirect(new URL('/auth/auth-code-error', origin));
 }

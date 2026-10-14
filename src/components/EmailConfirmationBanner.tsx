@@ -1,57 +1,43 @@
 'use client';
-import React from 'react';
+
+import { useState } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 export function EmailConfirmationBanner() {
-    const { user } = useAuth();
+  const { user } = useAuth();
+  const [status, setStatus] = useState('');
+  const [error, setError] = useState('');
+  const [sending, setSending] = useState(false);
 
-    // Only show if user is logged in but email is not confirmed
-    if (!user || user.email_confirmed_at) {
-        return null;
+  if (!user || user.email_confirmed_at) return null;
+
+  const resend = async () => {
+    setSending(true);
+    setStatus('');
+    setError('');
+    try {
+      const response = await fetch('/api/auth/resend-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email }),
+      });
+      const result = await response.json();
+      if (!response.ok) setError(result.error || 'We could not send the email. Try again later.');
+      else setStatus('Confirmation email sent. Check your inbox and spam folder.');
+    } catch {
+      setError('We could not send the email. Check your connection and try again.');
+    } finally {
+      setSending(false);
     }
+  };
 
-    return (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-            <div className="flex">
-                <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                </div>
-                <div className="ml-3">
-                    <h3 className="text-sm font-medium text-yellow-800">
-                        Email confirmation required
-                    </h3>
-                    <div className="mt-2 text-sm text-yellow-700">
-                        <p>
-                            Please check your email and click the confirmation link to verify your account. 
-                            You'll need to confirm your email before you can create offers or wants.
-                        </p>
-                        <p className="mt-1">
-                            Didn't receive the email? Check your spam folder or{' '}
-                            <button 
-                                className="font-medium underline hover:text-yellow-600"
-                                onClick={async () => {
-                                    // Resend confirmation email
-                                    const { error } = await fetch('/api/auth/resend-confirmation', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ email: user.email })
-                                    }).then(res => res.json());
-                                    
-                                    if (error) {
-                                        alert('Error sending confirmation email: ' + error);
-                                    } else {
-                                        alert('Confirmation email sent! Check your inbox.');
-                                    }
-                                }}
-                            >
-                                resend it
-                            </button>.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-} 
+  return <aside aria-labelledby="confirmation-heading" className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4">
+    <h2 id="confirmation-heading" className="font-semibold text-amber-950">Confirm your email</h2>
+    <p className="mt-1 text-sm text-amber-900">Check your inbox and follow the verification link to enable account actions.</p>
+    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+      <button type="button" onClick={resend} disabled={sending} className="rounded-md border border-amber-700 px-3 py-1.5 text-sm font-semibold text-amber-950 hover:bg-amber-100 disabled:opacity-60">{sending ? 'Sending…' : 'Resend confirmation email'}</button>
+      {status && <p role="status" className="text-sm text-emerald-800">{status}</p>}
+      {error && <p role="alert" className="text-sm text-red-800">{error}</p>}
+    </div>
+  </aside>;
+}
