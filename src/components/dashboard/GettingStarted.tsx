@@ -29,7 +29,7 @@ export function GettingStarted({
       Art: AskCardArt,
       done: hasRequest,
       title: "Ask for one thing you could use",
-      copy: "You already have 2 hours to spend, so go ahead and ask.",
+      copy: "Ask for something you need. You and your neighbor can agree on the hours together.",
       action: hasRequest ? null : { label: "Ask for help", onClick: onRequest },
     },
     {
