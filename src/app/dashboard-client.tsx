@@ -13,6 +13,9 @@ import { AddOfferModal } from "@/components/modals/AddOfferModal";
 import { AddWantModal } from "@/components/modals/AddWantModal";
 import { LoginModal } from "@/components/modals/LoginModal";
 import { EmailConfirmationBanner } from "@/components/EmailConfirmationBanner";
+import { Landing } from "@/components/landing/Landing";
+import { GettingStarted } from "@/components/dashboard/GettingStarted";
+import { PlusGlyph, StarGlyph } from "@/components/illustrations";
 
 type Intent = { kind: "offer" | "want"; item: Offer | Want };
 type DialogState =
@@ -276,181 +279,15 @@ export default function DashboardClient({
 
   if (!serverState.user) {
     return (
-      <div className="min-h-screen bg-[#f7f6f2] text-[#201c35]">
-        <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
-          <a href="#home" className="flex items-center gap-3 font-bold">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-violet-700 text-lg text-white">
-              N
-            </span>
-            <span className="text-lg tracking-tight">New Future Bank</span>
-          </a>
-          <button
-            type="button"
-            onClick={() => setLoginOpen(true)}
-            className="button-primary"
-          >
-            Join the community
-          </button>
-        </header>
-        <main id="home" className="mx-auto max-w-7xl px-5 pb-16 sm:px-8">
-          <section className="relative overflow-hidden rounded-[2rem] bg-[#29233f] px-6 py-14 text-white sm:px-12 sm:py-20 lg:px-16">
-            <div className="pointer-events-none absolute -right-20 -top-32 h-96 w-96 rounded-full border-[1px] border-white/10" />
-            <div className="pointer-events-none absolute -right-4 -top-16 h-64 w-64 rounded-full border border-teal-200/20" />
-            <div className="relative max-w-2xl">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-bold uppercase tracking-[.14em] text-teal-200">
-                <span className="h-2 w-2 rounded-full bg-teal-300" />
-                Neighbors make things possible
-              </span>
-              <h1 className="mt-6 text-4xl font-bold leading-[1.08] tracking-tight sm:text-6xl">
-                A little time can change a lot.
-              </h1>
-              <p className="mt-6 max-w-xl text-lg leading-8 text-white/75">
-                New Future Bank is a community time bank. Share what you know,
-                ask for the help you need, and build a stronger circle together.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <button
-                  onClick={() => setLoginOpen(true)}
-                  className="rounded-full bg-[#e5b969] px-6 py-3.5 font-bold text-[#29233f] hover:bg-[#f0ca7d]"
-                >
-                  Find your people <span aria-hidden="true">→</span>
-                </button>
-                <a
-                  href="#how-it-works"
-                  className="rounded-full border border-white/25 px-6 py-3.5 font-bold text-white hover:bg-white/10"
-                >
-                  How it works
-                </a>
-              </div>
-            </div>
-            <div
-              aria-hidden="true"
-              className="relative mt-14 grid max-w-xl grid-cols-3 gap-3 sm:absolute sm:bottom-12 sm:right-12 sm:mt-0 sm:w-[24rem]"
-            >
-              <div className="rounded-2xl bg-white/10 p-4 backdrop-blur">
-                <span className="text-2xl">🌱</span>
-                <p className="mt-5 text-xs font-semibold text-white/70">
-                  Share a skill
-                </p>
-              </div>
-              <div className="translate-y-5 rounded-2xl bg-teal-700/80 p-4">
-                <span className="text-2xl">🤝</span>
-                <p className="mt-5 text-xs font-semibold text-white/80">
-                  Trade an hour
-                </p>
-              </div>
-              <div className="rounded-2xl bg-[#e5b969] p-4 text-[#29233f]">
-                <span className="text-2xl">✨</span>
-                <p className="mt-5 text-xs font-semibold">Grow together</p>
-              </div>
-            </div>
-          </section>
-          <section
-            id="how-it-works"
-            className="grid gap-10 py-16 lg:grid-cols-[.8fr_1.2fr] lg:items-center"
-          >
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[.18em] text-teal-700">
-                Simple by design
-              </p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                Every hour has equal value.
-              </h2>
-              <p className="mt-4 max-w-lg leading-7 text-slate-600">
-                Help a neighbor for an hour and earn one time credit. When you
-                receive an hour of help, spend one credit. Use the time you earn
-                later when you need help from someone else. No prices, no
-                keeping score of whose skill is worth more.
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {[
-                [
-                  "01",
-                  "Offer what you can",
-                  "A meal, a repair, a lesson, a listening ear.",
-                ],
-                [
-                  "02",
-                  "Ask for what you need",
-                  "Post a request and agree on the time together.",
-                ],
-                [
-                  "03",
-                  "Pass help along",
-                  "New members start with 2 time credits to get their first exchange going.",
-                ],
-              ].map(([n, title, copy]) => (
-                <article
-                  key={n}
-                  className="rounded-2xl border border-slate-200 bg-white p-5"
-                >
-                  <span className="text-xs font-extrabold tracking-[.16em] text-violet-600">
-                    {n}
-                  </span>
-                  <h3 className="mt-4 font-bold">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {copy}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </section>
-          <section className="rounded-3xl bg-[#e9e6f1] px-6 py-10 sm:px-10">
-            <div className="flex flex-col justify-between gap-7 sm:flex-row sm:items-center">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[.16em] text-violet-700">
-                  A community, not a marketplace
-                </p>
-                <h2 className="mt-2 text-2xl font-bold">
-                  Care grows when it moves both ways.
-                </h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                  Member listings and exchange details are visible to members.
-                  Your balance is yours to see; private messages stay with the
-                  people in that exchange. Join to meet the people around you.
-                </p>
-              </div>
-              <button
-                onClick={() => setLoginOpen(true)}
-                className="button-primary shrink-0"
-              >
-                Get started
-              </button>
-            </div>
-          </section>
-          {serverState.error && (
-            <div
-              role="status"
-              className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
-            >
-              {serverState.error}
-            </div>
-          )}
-          {serverState.configured && !serverState.error && (
-            <section
-              aria-label="Community activity"
-              className="grid grid-cols-2 gap-4 py-10 text-center sm:grid-cols-4"
-            >
-              {[
-                [summary.member_count, "members"],
-                [summary.completed_exchanges, "completed exchanges"],
-                [formatCredits(summary.contributed_minutes), "hours shared"],
-                [summary.active_projects, "active projects"],
-              ].map(([value, label]) => (
-                <div key={String(label)}>
-                  <p className="text-2xl font-bold text-violet-800">{value}</p>
-                  <p className="mt-1 text-xs text-slate-500">{label}</p>
-                </div>
-              ))}
-            </section>
-          )}
-          <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-            New Future Bank · Mutual aid, measured in time.
-          </footer>
-        </main>
+      <>
+        <Landing
+          summary={summary}
+          configured={serverState.configured}
+          error={serverState.error}
+          onJoin={() => setLoginOpen(true)}
+        />
         <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
-      </div>
+      </>
     );
   }
 
@@ -469,7 +306,7 @@ export default function DashboardClient({
     : [];
 
   return (
-    <div className="min-h-screen bg-[#f7f6f2] text-[#201c35]">
+    <div className="min-h-screen bg-[#f4f6fb] text-[#201c35]">
       {qaReadOnly ? (
         <div className="border-b border-amber-300 bg-amber-100 px-4 py-2 text-center text-sm font-semibold text-amber-950">
           Development fixture preview · all controls are disabled
@@ -517,7 +354,7 @@ export default function DashboardClient({
             </button>
           </div>
         )}
-        <section className="flex flex-col justify-between gap-5 rounded-3xl bg-[#29233f] p-6 text-white sm:flex-row sm:items-center sm:p-8">
+        <section className="flex flex-col justify-between gap-5 rounded-3xl bg-[#141a4a] p-6 text-white sm:flex-row sm:items-center sm:p-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-[.18em] text-teal-200">
               Your community, in motion
@@ -539,9 +376,11 @@ export default function DashboardClient({
                 setOfferDraft(undefined);
                 setOfferOpen(true);
               }}
-              className="rounded-full bg-[#e5b969] px-5 py-3 text-sm font-bold text-[#29233f] hover:bg-[#f0ca7d]"
+              className="rounded-full bg-[#ffc93c] px-5 py-3 text-sm font-bold text-[#141a4a] hover:bg-[#ffd766]"
             >
-              ＋ Share an offer
+              <span className="inline-flex items-center gap-1.5">
+                <PlusGlyph /> Share an offer
+              </span>
             </button>
             <button
               onClick={() => {
@@ -554,6 +393,19 @@ export default function DashboardClient({
             </button>
           </div>
         </section>
+        <GettingStarted
+          hasOffer={serverState.offers.length > 0}
+          hasRequest={serverState.wants.length > 0}
+          hasExchange={serverState.exchanges.length > 0}
+          onOffer={() => {
+            setOfferDraft(undefined);
+            setOfferOpen(true);
+          }}
+          onRequest={() => {
+            setWantDraft(undefined);
+            setWantOpen(true);
+          }}
+        />
         <section className="grid gap-5 lg:grid-cols-[1.3fr_.7fr]">
           <DashboardCard title="Community pulse" eyebrow="Real activity">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -565,7 +417,7 @@ export default function DashboardClient({
               ].map(([value, label]) => (
                 <div
                   key={String(label)}
-                  className="rounded-xl bg-[#f7f6f2] p-4"
+                  className="rounded-xl bg-[#f4f6fb] p-4"
                 >
                   <p className="text-2xl font-bold text-violet-800">{value}</p>
                   <p className="mt-1 text-xs leading-5 text-slate-600">
@@ -600,9 +452,10 @@ export default function DashboardClient({
         </section>
 
         <DashboardCard
+          id="find-a-neighbor"
           title="Find a neighbor"
           eyebrow="Member directory"
-          className="scroll-mt-20"
+          className="scroll-mt-28"
         >
           <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div
@@ -779,7 +632,9 @@ export default function DashboardClient({
                 }}
                 className={`${button} bg-violet-50 text-violet-800`}
               >
-                ＋ Offer
+                <span className="inline-flex items-center gap-1">
+                  <PlusGlyph className="h-3.5 w-3.5" /> Offer
+                </span>
               </button>
               <button
                 onClick={() => {
@@ -788,7 +643,9 @@ export default function DashboardClient({
                 }}
                 className={`${button} bg-teal-50 text-teal-800`}
               >
-                ＋ Request help
+                <span className="inline-flex items-center gap-1">
+                  <PlusGlyph className="h-3.5 w-3.5" /> Request help
+                </span>
               </button>
             </div>
             {ownListings.length ? (
@@ -987,7 +844,7 @@ export default function DashboardClient({
           </DashboardCard>
           <div className="space-y-5">
             <DashboardCard title="Community fund" eyebrow="A shared safety net">
-              <div className="rounded-2xl bg-[#29233f] p-5 text-white">
+              <div className="rounded-2xl bg-[#141a4a] p-5 text-white">
                 <p className="text-xs font-bold uppercase tracking-[.16em] text-teal-200">
                   Time credits available
                 </p>
@@ -1286,7 +1143,7 @@ export default function DashboardClient({
             Each star represents time you have given to neighbors and community
             projects.
           </p>
-          <div className="relative min-h-44 overflow-hidden rounded-2xl bg-[#29233f] p-5">
+          <div className="relative min-h-44 overflow-hidden rounded-2xl bg-[#141a4a] p-5">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(52,107,117,.45),transparent_60%)]" />
             {serverState.contributions.filter(
               (item) => item.user_id === currentUserId,
@@ -1331,12 +1188,7 @@ export default function DashboardClient({
                       className="constellation-star flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3"
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
-                      <span
-                        aria-hidden="true"
-                        className="text-xl text-amber-200"
-                      >
-                        ✦
-                      </span>
+                      <StarGlyph className="h-5 w-5 shrink-0 text-amber-200" />
                       <div className="min-w-0">
                         <p className="truncate text-xs font-bold text-white">
                           {label}

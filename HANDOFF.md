@@ -1,6 +1,33 @@
 # New Future Bank handoff
 
-Updated October 14, 2026. The new app is deployed and hosted synthetic QA has passed. Synthetic records have been cleaned up and the original fund baseline restored. Verify delivery/setup for the accepted member email without exposing personal or credential details.
+Updated October 15, 2026. The public page refresh below is local only. The October 14 app is deployed and hosted synthetic QA has passed. Synthetic records have been cleaned up and the original fund baseline restored. Verify delivery/setup for the accepted member email without exposing personal or credential details.
+
+## Public page and design refresh (October 15, 2026, not yet deployed)
+
+This work is on branch `public-page-refresh` in a pull request. It has **not** been merged or deployed. Production still serves the October 14 release.
+
+What changed:
+
+- New public page in `src/components/landing/Landing.tsx`, split out of `src/app/dashboard-client.tsx`. It tells the case for the time bank through four made-up neighbors and real, cited cost and loneliness statistics, followed by history, how it works, agreements, a FAQ, and a numbered Sources list.
+- New look: blue, yellow, and red on white; system fonts (Verdana for text, Georgia for headings) chosen for readers of every literacy level; hand-drawn SVG illustrations in `src/components/illustrations.tsx` replacing the emoji. The signed-in dashboard picks up the same colors through remapped Tailwind scales.
+- Public-domain historical photos of Black, Latino, and rural community life in a "How it used to look" section with a lead photo and a slideshow (twelve photos: seven from the Library of Congress, 1936 to 1943, and five color photos of Chicago, San Antonio, and Brooklyn from the National Archives, 1972 to 1974; city neighborhoods first), with credits and links to the original records.
+- New favicon (`src/app/icon.svg`), phone home-screen icon (`src/app/apple-icon.tsx`), and link-preview image (`src/app/opengraph-image.tsx`).
+- A first-steps checklist for new members (`src/components/dashboard/GettingStarted.tsx`) that hides once they have an offer, a request, and an exchange.
+- Copy rewritten in plain language with no em dashes. Validation messages now say "3 to 20" instead of using a dash.
+- Two optional settings: `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_COMMUNITY_CONTACT_EMAIL`.
+
+The full design, writing, photo, and statistics guide is [docs/DESIGN.md](docs/DESIGN.md). Read it before changing the public page.
+
+Checked locally: lint, typecheck, the 11 helper tests, the PGlite integration suite, and a production build pass. The page, the `/qa/dashboard` fixture, and the share image were reviewed in a browser at desktop and phone widths. Not yet checked: the new page on production, real phones, and screen readers.
+
+Decisions still open before sharing the link widely:
+
+1. Set `NEXT_PUBLIC_COMMUNITY_CONTACT_EMAIL` in Vercel so the page shows a way to reach a person.
+2. Decide whether signup stays open or becomes invite-only for the first group.
+3. Decide whether new members should check a box agreeing to the six agreements at signup. Today the page asks members to keep them but signup does not record agreement.
+4. Add a privacy policy and terms page. Neither exists.
+5. Replace the made-up stories with real member stories, with permission, once the pilot has some.
+6. Remove unused legacy components (`ServiceCard`, `ToolButton`, `CommunityPulse`, `CommunityProjects`, `ContributionConstellation`, `WelcomeModal`, `AmplifyModal`, `KudosModal`, `CommunityFundModal`, `src/components/icons.tsx`) and the default Next.js files in `public/`.
 
 ## Product rules
 

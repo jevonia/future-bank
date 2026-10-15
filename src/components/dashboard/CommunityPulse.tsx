@@ -16,7 +16,7 @@ export function CommunityPulse({ data }: { data: PublicSummary }) {
       </p>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {values.map(([value, label]) => (
-          <div key={label} className="rounded-xl bg-[#f7f6f2] p-4">
+          <div key={label} className="rounded-xl bg-[#f4f6fb] p-4">
             <p className="text-2xl font-bold text-violet-800">{value}</p>
             <p className="mt-1 text-xs text-slate-600">{label}</p>
           </div>

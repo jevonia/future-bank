@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { PlusGlyph } from "@/components/illustrations";
 
 export function DashboardCard({
   title,
@@ -9,6 +10,7 @@ export function DashboardCard({
   disabled = false,
   eyebrow,
   className = "",
+  id,
 }: {
   title: string;
   children: React.ReactNode;
@@ -17,9 +19,10 @@ export function DashboardCard({
   disabled?: boolean;
   eyebrow?: string;
   className?: string;
+  id?: string;
 }) {
   return (
-    <section className={`panel p-5 sm:p-6 ${className}`}>
+    <section id={id} className={`panel p-5 sm:p-6 ${className}`}>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           {eyebrow && (
@@ -27,7 +30,7 @@ export function DashboardCard({
               {eyebrow}
             </p>
           )}
-          <h2 className="text-xl font-bold tracking-tight text-slate-900">
+          <h2 className="text-2xl font-semibold text-slate-900">
             {title}
           </h2>
         </div>
@@ -38,7 +41,7 @@ export function DashboardCard({
             disabled={disabled}
             className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-bold text-violet-800 hover:bg-violet-100 disabled:cursor-not-allowed"
           >
-            <span aria-hidden="true">＋</span>
+            <PlusGlyph />
             {addLabel}
           </button>
         )}

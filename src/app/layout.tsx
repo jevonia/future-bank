@@ -1,11 +1,29 @@
 import type { Metadata } from "next";
+import { siteUrl } from "@/lib/site";
 import "../styles/globals.css";
 
+const description =
+  "A time bank for neighbors. Help someone for an hour and you earn an hour of help back, from anyone in the group. No money changes hands, and every member's hour counts the same.";
+
 export const metadata: Metadata = {
-  title: "New Future Bank | Every hour has equal value",
-  description: "Share skills, ask for help, and strengthen your community. New Future Bank is a time bank where one hour of help equals one time credit.",
+  metadataBase: new URL(siteUrl),
+  title: "New Future Bank | A neighborhood time bank",
+  description,
+  openGraph: {
+    title: "New Future Bank: Everything costs more. We have each other.",
+    description,
+    siteName: "New Future Bank",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "New Future Bank: Everything costs more. We have each other.",
+    description,
+  },
 };
 
+// Fonts are the system's own (see globals.css), so nothing extra downloads
+// on a slow phone plan.
 export default function RootLayout({
   children,
 }: {
