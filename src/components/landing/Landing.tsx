@@ -403,6 +403,37 @@ export function Landing({
       </header>
 
       <main id="home">
+        <div className="mx-auto max-w-7xl px-5 pb-2 sm:px-8">
+          <details className="group rounded-2xl border border-leaf-deep/20 bg-mint/30">
+            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-5 py-3 text-base font-bold text-leaf-deep hover:bg-mint/50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-leaf-deep [&::-webkit-details-marker]:hidden">
+              <span>In loving memory of my aunt</span>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                className="h-5 w-5 shrink-0 transition-transform group-open:rotate-180"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <div className="max-w-3xl px-5 pb-5 leading-8 text-slate-700">
+              <p>
+                This space is dedicated to my aunt, who found community and
+                flourished in it. She made neighbors into family, giving and
+                receiving love in the everyday moments of life. I am in awe of
+                what she cultivated, and of the love that keeps growing in her
+                absence.
+              </p>
+              <p className="mt-3 font-display text-xl font-bold text-leaf-deep">
+                May we help each other feel that same belonging.
+              </p>
+            </div>
+          </details>
+        </div>
         <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-6 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pb-20 lg:pt-10">
           <div>
             <span className="inline-flex rounded-full bg-sun px-4 py-1.5 text-base font-bold text-ink">
