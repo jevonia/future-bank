@@ -1,10 +1,10 @@
 # New Future Bank handoff
 
-Updated October 15, 2026. The public page refresh below is local only. The October 14 app is deployed and hosted synthetic QA has passed. Synthetic records have been cleaned up and the original fund baseline restored. Verify delivery/setup for the accepted member email without exposing personal or credential details.
+Updated October 15, 2026. The public page refresh below was merged through PR #2 and deploys to production from main. The October 14 app and hosted synthetic QA has passed. Synthetic records have been cleaned up and the original fund baseline restored. Verify delivery/setup for the accepted member email without exposing personal or credential details.
 
-## Public page and design refresh (October 15, 2026, not yet deployed)
+## Public page and design refresh (October 15, 2026)
 
-This work is on branch `public-page-refresh` in a pull request. It has **not** been merged or deployed. Production still serves the October 14 release.
+This work was merged into main through [PR #2](https://github.com/jevonia/future-bank/pull/2) on October 15, 2026, after CI passed and the owner reviewed the Vercel preview. Production on the `future-bank` Vercel project builds from main. `NEXT_PUBLIC_COMMUNITY_CONTACT_EMAIL` is set in that project's Production environment to the owner's chosen coordinator address (not recorded here); it is not set for Preview.
 
 What changed:
 
@@ -18,11 +18,11 @@ What changed:
 
 The full design, writing, photo, and statistics guide is [docs/DESIGN.md](docs/DESIGN.md). Read it before changing the public page.
 
-Checked locally: lint, typecheck, the 11 helper tests, the PGlite integration suite, and a production build pass. The page, the `/qa/dashboard` fixture, and the share image were reviewed in a browser at desktop and phone widths. Not yet checked: the new page on production, real phones, and screen readers.
+Checked: lint, typecheck, the 11 helper tests, the PGlite integration suite, and a production build pass locally and in CI. The page, the `/qa/dashboard` fixture, and the share image were reviewed in a browser at desktop and phone widths, and the owner reviewed the Vercel preview. Not yet checked: real phones and screen readers.
 
 Decisions still open before sharing the link widely:
 
-1. Set `NEXT_PUBLIC_COMMUNITY_CONTACT_EMAIL` in Vercel so the page shows a way to reach a person.
+1. Done: the coordinator contact email is set in Vercel Production. Add it to Preview too if previews should show it.
 2. Decide whether signup stays open or becomes invite-only for the first group.
 3. Decide whether new members should check a box agreeing to the six agreements at signup. Today the page asks members to keep them but signup does not record agreement.
 4. Add a privacy policy and terms page. Neither exists.

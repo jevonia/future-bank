@@ -2,7 +2,7 @@
 
 Updated October 15, 2026.
 
-## October 15 public page and design refresh (local, not deployed)
+## October 15 public page and design refresh (merged in PR #2)
 
 - The signed-out page moved to `src/components/landing/Landing.tsx`. `dashboard-client.tsx` renders it when there is no user.
 - `PhotoSlideshow.tsx` is the historical photo slideshow; photo data is in `archive-photos.ts`.

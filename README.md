@@ -6,7 +6,7 @@ The public page can render without Supabase credentials. The bank schema is live
 
 ## Design and public page
 
-The public page, colors, fonts, illustrations, historical photos, writing rules, and the sources behind every statistic are documented in [docs/DESIGN.md](docs/DESIGN.md). The most recent public page refresh is not yet deployed; see [HANDOFF.md](HANDOFF.md).
+The public page, colors, fonts, illustrations, historical photos, writing rules, and the sources behind every statistic are documented in [docs/DESIGN.md](docs/DESIGN.md). The most recent public page refresh was merged through [PR #2](https://github.com/jevonia/future-bank/pull/2); see [HANDOFF.md](HANDOFF.md).
 
 ## Requirements and local setup
 

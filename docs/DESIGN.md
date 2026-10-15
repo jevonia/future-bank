@@ -128,7 +128,7 @@ The numbers were checked in October 2026. Re-check them about once a year.
 | Variable                              | Effect                                                                                                                 |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `NEXT_PUBLIC_SITE_URL`                | Base URL used in share-preview tags. Defaults to `https://newfuturebank.com`.                                          |
-| `NEXT_PUBLIC_COMMUNITY_CONTACT_EMAIL` | Shows a coordinator address in the FAQ and footer. Hidden when unset. Set it in Vercel before sharing the link widely. |
+| `NEXT_PUBLIC_COMMUNITY_CONTACT_EMAIL` | Shows a coordinator address in the FAQ and footer. Hidden when unset. Set in Vercel Production as of October 15, 2026. |
 
 ## Previewing
 
