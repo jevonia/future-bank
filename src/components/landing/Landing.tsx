@@ -292,6 +292,31 @@ const agreements = [
   ],
 ];
 
+// Plain habits for a first meeting. The site does not track any of this yet;
+// it is advice, not a feature.
+const firstMeeting = [
+  [
+    "Meet in a public place first.",
+    "A coffee shop, a library, a park, or the front steps. If the help has to happen at home, like a repair, meet somewhere public once before that.",
+  ],
+  [
+    "Tell a friend where you'll be.",
+    "Text someone the time, the place, and the name of the neighbor you're meeting. Say when you'll check back in.",
+  ],
+  [
+    "Bring someone along if you want.",
+    "A friend, a sister, a neighbor from your building. Nobody will think it's strange.",
+  ],
+  [
+    "Agree on the job and the time before you start.",
+    "Say what you'll do, when, and about how many hours. If the job turns out bigger than you thought, stop and agree again.",
+  ],
+  [
+    "You can say no at any time.",
+    "Turn down a request, leave, or cancel an exchange. You don't owe anyone a reason, and nobody will ask for one.",
+  ],
+] as const;
+
 function Eyebrow({
   children,
   className = "text-tomato-deep",
@@ -342,7 +367,34 @@ export function Landing({
     ],
     [
       "Is it safe to meet someone new?",
-      "We check that each member's email address is real. We do not run background checks. Use the same care you would with anyone new: meet in public first, bring a friend if you like, and trust your gut. You can turn down or cancel any exchange.",
+      <>
+        Here is what we do today. We check that each member&apos;s email address
+        is real. We do not run background checks, and we say so. What keeps
+        people safe is how you meet: in a public place the first time, with a
+        friend who knows where you are, and with someone else along if you want.
+        You can say no or cancel at any time, and you never have to explain. If
+        something feels wrong, tell the coordinator
+        {contactEmail ? (
+          <>
+            {" "}
+            at{" "}
+            <a
+              className="font-bold text-cobalt underline underline-offset-2"
+              href={`mailto:${contactEmail}`}
+            >
+              {contactEmail}
+            </a>
+          </>
+        ) : null}
+        . Read our short guide to{" "}
+        <a
+          className="font-bold text-cobalt underline underline-offset-2"
+          href="#first-meeting"
+        >
+          meeting a neighbor for the first time
+        </a>
+        .
+      </>,
     ],
     [
       "Who runs New Future Bank?",
@@ -387,6 +439,13 @@ export function Landing({
           </a>
           <a href="#agreements" className="hover:text-cobalt">
             Our agreements
+          </a>
+          {/* Five links crowd the sign-in button between 1024 and 1280px. */}
+          <a
+            href="#first-meeting"
+            className="hidden hover:text-cobalt xl:inline"
+          >
+            Meeting safely
           </a>
           <a href="#questions" className="hover:text-cobalt">
             Questions
@@ -782,6 +841,64 @@ export function Landing({
         </section>
 
         <section
+          id="first-meeting"
+          className="mx-auto max-w-7xl scroll-mt-6 px-5 py-16 sm:px-8 lg:py-24"
+        >
+          <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr]">
+            <div>
+              <Eyebrow>Meeting safely</Eyebrow>
+              <h2 className="mt-3 text-4xl font-bold">
+                Meeting a neighbor for the first time
+              </h2>
+              <p className="mt-4 leading-8 text-slate-700">
+                We check that each member&apos;s email is real. We do not run
+                background checks. These habits are what keep people safe, so we
+                ask everyone to use them.
+              </p>
+            </div>
+            <div>
+              <ul className="grid gap-x-8 gap-y-7 sm:grid-cols-2">
+                {firstMeeting.map(([title, copy]) => (
+                  <li key={title} className="flex gap-4">
+                    <span
+                      aria-hidden="true"
+                      className="mt-2.5 h-4 w-4 shrink-0 rounded-full bg-sun"
+                    />
+                    <div>
+                      <h3 className="text-xl font-bold">{title}</h3>
+                      <p className="mt-1 leading-8 text-slate-700">{copy}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-10 rounded-2xl border border-sky bg-haze p-5 sm:p-6">
+                <h3 className="text-xl font-bold">
+                  If something felt wrong, tell the coordinator.
+                </h3>
+                <p className="mt-2 leading-8 text-slate-700">
+                  Say what happened and what the person did. The coordinator
+                  will write back to you, and nothing you tell them is posted on
+                  the site.
+                  {contactEmail ? (
+                    <>
+                      {" "}
+                      Email{" "}
+                      <a
+                        className="font-bold text-cobalt underline underline-offset-2"
+                        href={`mailto:${contactEmail}`}
+                      >
+                        {contactEmail}
+                      </a>
+                      .
+                    </>
+                  ) : null}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
           id="questions"
           className="mx-auto max-w-4xl scroll-mt-6 px-5 py-16 sm:px-8 lg:py-24"
         >
@@ -912,6 +1029,9 @@ export function Landing({
             </a>
             <a href="#agreements" className="hover:text-cobalt">
               Our agreements
+            </a>
+            <a href="#first-meeting" className="hover:text-cobalt">
+              Meeting safely
             </a>
             <a href="#questions" className="hover:text-cobalt">
               Questions
