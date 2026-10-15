@@ -71,7 +71,7 @@ export function ProfileSettingsModal({ isOpen, onClose, profile, onProfileUpdate
     }
     const cleanUsername = normalizeUsername(username);
     if (!isValidUsername(cleanUsername)) {
-      setError('Choose a username with 3–20 letters, numbers, or underscores.');
+      setError('Choose a username with 3 to 20 letters, numbers, or underscores.');
       return;
     }
     if (avatarUrl && !avatarUrl.startsWith('data:image/') && !isAllowedAvatarUrl(avatarUrl)) {
@@ -127,7 +127,7 @@ export function ProfileSettingsModal({ isOpen, onClose, profile, onProfileUpdate
       <div>
         <label htmlFor="profile-username" className="mb-1 block text-sm font-medium text-slate-700">Username</label>
         <input id="profile-username" autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} required minLength={3} maxLength={20} pattern="[A-Za-z0-9_]{3,20}" className="w-full rounded-lg border border-slate-300 p-3 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
-        <p className="mt-1 text-xs text-slate-500">3–20 characters: letters, numbers, and underscores. Usernames are lowercase.</p>
+        <p className="mt-1 text-xs text-slate-500">3 to 20 characters: letters, numbers, and underscores. Usernames are lowercase.</p>
       </div>
 
       <div>

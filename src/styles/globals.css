@@ -1,11 +1,58 @@
 @import "tailwindcss";
 
+/*
+ * Neighborhood-poster palette: union blue, sun yellow, and tomato red on
+ * white. The dashboard markup predates it and still uses Tailwind's
+ * violet/indigo names, so those scales are remapped to the blue here instead
+ * of being renamed across every component.
+ */
+@theme {
+  /*
+   * Familiar system fonts chosen for readers of every background: Verdana
+   * for body text (named in U.S. health-literacy and dyslexia style guides)
+   * and Georgia for headings. Both ship with Windows, macOS, and iOS; the
+   * fallbacks cover Android and Linux. Nothing downloads.
+   */
+  --font-sans: Verdana, "Verdana Pro", Tahoma, "DejaVu Sans", Arial, sans-serif;
+  --font-display: Georgia, Gelasio, "Noto Serif", "Times New Roman", serif;
+
+  --color-paper: #ffffff;
+  --color-haze: #f2f5ff;
+  --color-ink: #121633;
+  --color-night: #141a4a;
+  --color-cobalt: #2340d9;
+  --color-cobalt-deep: #1b32b0;
+  --color-sky: #d9e3ff;
+  --color-sun: #ffc93c;
+  --color-sun-soft: #fff1c2;
+  --color-tomato: #ef4f2b;
+  --color-tomato-deep: #c4361a;
+  --color-blush: #ffdcd2;
+  --color-leaf: #12a06b;
+  --color-leaf-deep: #0b7350;
+  --color-mint: #d3f3e4;
+
+  --color-violet-50: #eef2ff;
+  --color-violet-100: #dfe6ff;
+  --color-violet-200: #c2cfff;
+  --color-violet-300: #98abff;
+  --color-violet-400: #6b80f5;
+  --color-violet-500: #4660ea;
+  --color-violet-600: #2f4be0;
+  --color-violet-700: #2340d9;
+  --color-violet-800: #1b32b0;
+  --color-violet-900: #1a2d85;
+  --color-violet-950: #121c4d;
+
+  --color-indigo-600: #2f4be0;
+  --color-indigo-700: #2340d9;
+  --color-indigo-800: #1b32b0;
+}
+
 :root {
   color-scheme: light;
-  --ink: #201c35;
-  --violet: #6750a4;
-  --teal: #167d79;
-  --paper: #f7f6f2;
+  --ink: #121633;
+  --paper: #ffffff;
 }
 * {
   box-sizing: border-box;
@@ -17,7 +64,16 @@ body {
   margin: 0;
   color: var(--ink);
   background: var(--paper);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  line-height: 1.15;
 }
 button,
 input,
@@ -33,8 +89,8 @@ button:disabled {
   opacity: 0.62;
 }
 ::selection {
-  color: #201c35;
-  background: #d9cef5;
+  color: #121633;
+  background: #c2cfff;
 }
 .form-label {
   display: block;
@@ -47,15 +103,15 @@ button:disabled {
   width: 100%;
   margin-top: 0.4rem;
   padding: 0.75rem 0.85rem;
-  border: 1px solid #d9dce5;
+  border: 1px solid #d6dbe8;
   border-radius: 0.8rem;
-  color: #201c35;
-  background: #fff;
+  color: #121633;
+  background: #ffffff;
   outline: none;
 }
 .form-input:focus {
-  border-color: #8065bd;
-  box-shadow: 0 0 0 3px #8065bd2b;
+  border-color: #2340d9;
+  box-shadow: 0 0 0 3px #2340d92b;
 }
 .form-error {
   border-radius: 0.7rem;
@@ -69,40 +125,41 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.4rem;
   min-height: 2.7rem;
   border-radius: 999px;
   padding: 0.65rem 1.1rem;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   transition:
     background 0.15s ease,
     transform 0.15s ease;
 }
 .button-primary {
-  border: 1px solid #5e498e;
+  border: 1px solid #1b32b0;
   color: white;
-  background: #6750a4;
+  background: #2340d9;
 }
 .button-primary:hover:not(:disabled) {
-  background: #513c83;
+  background: #1b32b0;
   transform: translateY(-1px);
 }
 .button-secondary {
-  border: 1px solid #d9dce5;
-  color: #423c56;
+  border: 1px solid #d6dbe8;
+  color: #344054;
   background: white;
 }
 .button-secondary:hover:not(:disabled) {
-  background: #f4f2f8;
+  background: #f2f5ff;
 }
 .panel {
-  border: 1px solid #e9e7ee;
+  border: 1px solid #e3e7f2;
   border-radius: 1.25rem;
-  background: white;
-  box-shadow: 0 6px 24px #2e264108;
+  background: #ffffff;
+  box-shadow: 0 6px 24px #1216330a;
 }
 .balance-glow {
-  text-shadow: 0 0 14px rgba(167, 139, 250, 0.34);
+  text-shadow: 0 0 14px rgba(234, 182, 90, 0.34);
 }
 .card-hover {
   transition:
@@ -111,8 +168,8 @@ button:disabled {
     transform 0.18s ease;
 }
 .card-hover:hover {
-  border-color: #d7d0e8;
-  box-shadow: 0 12px 30px #2e26410d;
+  border-color: #c2cfff;
+  box-shadow: 0 12px 30px #12163312;
   transform: translateY(-2px);
 }
 .constellation-star {
@@ -125,6 +182,17 @@ button:disabled {
   }
   to {
     opacity: 1;
+  }
+}
+.drift {
+  animation: drift 7s ease-in-out infinite alternate;
+}
+@keyframes drift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-6px);
   }
 }
 @media (prefers-reduced-motion: reduce) {

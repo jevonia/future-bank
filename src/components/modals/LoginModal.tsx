@@ -56,7 +56,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       return;
     }
     if (mode === 'sign-up' && !isValidUsername(username)) {
-      setError('Choose a username with 3–20 letters, numbers, or underscores.');
+      setError('Choose a username with 3 to 20 letters, numbers, or underscores.');
       return;
     }
 
@@ -165,7 +165,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             {mode === 'sign-up' && <div>
               <label htmlFor="auth-username" className="mb-1 block text-sm font-medium text-slate-700">Username</label>
               <input id="auth-username" autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} required minLength={3} maxLength={20} pattern="[A-Za-z0-9_]{3,20}" className="w-full rounded-lg border border-slate-300 bg-white p-3 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
-              <p className="mt-1 text-xs text-slate-500">3–20 characters: letters, numbers, and underscores.</p>
+              <p className="mt-1 text-xs text-slate-500">3 to 20 characters: letters, numbers, and underscores.</p>
             </div>}
             <div>
               <label htmlFor="auth-email" className="mb-1 block text-sm font-medium text-slate-700">Email</label>

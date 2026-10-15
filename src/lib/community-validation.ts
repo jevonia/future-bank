@@ -5,7 +5,7 @@ export class InputError extends Error {}
 
 function text(p: Payload, name: string, min: number, max: number): string {
   const value = p[name];
-  if (typeof value !== 'string' || value.trim().length < min || value.trim().length > max) throw new InputError(`${name.replaceAll('_', ' ')} must be ${min}–${max} characters.`);
+  if (typeof value !== 'string' || value.trim().length < min || value.trim().length > max) throw new InputError(`${name.replaceAll('_', ' ')} must be ${min} to ${max} characters.`);
   return value.trim();
 }
 function integer(p: Payload, name: string, min = 1, max = Number.MAX_SAFE_INTEGER): number {

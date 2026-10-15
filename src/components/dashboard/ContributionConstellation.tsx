@@ -45,7 +45,7 @@ export function ContributionConstellation({
       <p className="mb-4 text-sm text-slate-600">
         Your stars grow with time given to neighbors and community projects.
       </p>
-      <div className="relative min-h-44 overflow-hidden rounded-2xl bg-[#29233f] p-5">
+      <div className="relative min-h-44 overflow-hidden rounded-2xl bg-[#141a4a] p-5">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(52,107,117,.45),transparent_60%)]" />
         {stars.length === 0 ? (
           <div className="relative grid min-h-36 place-items-center text-center text-sm text-white/70">

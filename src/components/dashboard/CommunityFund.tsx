@@ -13,7 +13,7 @@ export function CommunityFund({
 }) {
   return (
     <DashboardCard title="Community fund" eyebrow="A shared safety net">
-      <div className="rounded-2xl bg-[#29233f] p-5 text-white">
+      <div className="rounded-2xl bg-[#141a4a] p-5 text-white">
         <p className="text-xs font-bold uppercase tracking-[.16em] text-teal-200">
           Time credits available
         </p>

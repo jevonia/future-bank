@@ -7,6 +7,7 @@ import type { User } from '@supabase/supabase-js';
 import type { Profile } from '@/lib/types';
 import { formatCredits } from '@/lib/types';
 import { ProfileSettingsModal } from '../modals/ProfileSettingsModal';
+import { LogoMark } from '../illustrations';
 
 interface HeaderProps {
   user: User | null;
@@ -34,17 +35,12 @@ export function Header({ user, profile, onSignInClick, onProfileUpdated }: Heade
   };
 
   return <>
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-[#ffffff]/95 shadow-sm backdrop-blur">
       <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
-          <div aria-hidden="true" className="flex h-11 w-11 flex-none items-center justify-center rounded-xl bg-indigo-700 text-white">
-            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4" />
-              <circle cx="12" cy="12" r="9" />
-            </svg>
-          </div>
+          <LogoMark className="h-11 w-11 flex-none" />
           <div className="min-w-0">
-            <p className="truncate text-base font-extrabold tracking-tight text-slate-950 sm:text-lg">New Future Bank</p>
+            <p className="truncate font-display text-lg font-semibold tracking-tight text-slate-950 sm:text-xl">New Future Bank</p>
             <p className="hidden text-xs text-slate-500 sm:block">A community where time is shared</p>
           </div>
         </div>

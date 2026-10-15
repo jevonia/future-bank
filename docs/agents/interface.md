@@ -1,6 +1,17 @@
 # Interface implementation handoff
 
-Updated October 14, 2026.
+Updated October 15, 2026.
+
+## October 15 public page and design refresh (merged in PR #2)
+
+- The signed-out page moved to `src/components/landing/Landing.tsx`. `dashboard-client.tsx` renders it when there is no user.
+- `PhotoSlideshow.tsx` is the historical photo slideshow; photo data is in `archive-photos.ts`.
+- Shared drawings are in `src/components/illustrations.tsx`. Use them instead of emoji or icon fonts.
+- Colors and fonts are tokens in `src/styles/globals.css`. Tailwind `violet`, `indigo`, and `slate` class names in dashboard components now resolve to the new blue palette and default slate. See [DESIGN.md](../DESIGN.md).
+- `GettingStarted.tsx` shows first steps to new members. `DashboardCard` accepts an `id` for in-page links.
+- Follow the writing guide in DESIGN.md for any new interface text.
+
+## October 14 implementation notes
 
 ## Implemented
 

@@ -4,6 +4,10 @@ New Future Bank is a community time bank built with Next.js 16 and Supabase. Mem
 
 The public page can render without Supabase credentials. The bank schema is live and the updated application is deployed at [newfuturebank.com](https://newfuturebank.com/). Hosted auth and community QA have passed for synthetic members, including confirmation and recovery, private exchange access, reservations, settlement, donations, projects, and urgent notifications. Synthetic QA accounts and records have been cleaned up and the original fund baseline restored. The real member setup email was accepted by the sender; inbox delivery and account setup are unverified. The release was merged through [PR #1](https://github.com/jevonia/future-bank/pull/1) into main at `bf80508`; [main CI run 38629341354](https://github.com/jevonia/future-bank/actions/runs/38629341354) passed; see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the exact status.
 
+## Design and public page
+
+The public page, colors, fonts, illustrations, historical photos, writing rules, and the sources behind every statistic are documented in [docs/DESIGN.md](docs/DESIGN.md). The most recent public page refresh was merged through [PR #2](https://github.com/jevonia/future-bank/pull/2); see [HANDOFF.md](HANDOFF.md).
+
 ## Requirements and local setup
 
 - Node.js 22 LTS and npm
@@ -20,12 +24,14 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Without the Supabase values, the public page displays a disconnected/empty state and authentication actions explain that configuration is missing.
 
-The application reads only these browser-safe variables:
+The application reads only these browser-safe variables (the last two are optional):
 
 | Name | Value |
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | The Supabase project's API URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | The project's publishable/anon public API key |
+| `NEXT_PUBLIC_SITE_URL` | Optional. Absolute URL used in share-preview tags; defaults to `https://newfuturebank.com` |
+| `NEXT_PUBLIC_COMMUNITY_CONTACT_EMAIL` | Optional. Coordinator address shown in the public FAQ and footer; hidden when unset |
 
 Do not put a service-role key, database password, access token, or other privileged secret in a `NEXT_PUBLIC_` variable. Keep local values in the ignored `.env.local`; use Vercel environment settings for hosted environments. The example file contains names only, not working credentials.
 
