@@ -106,6 +106,8 @@ Background on machine-writing patterns: [Wikipedia: Signs of AI writing](https:/
 11. Closing invitation. It shows live member counts once there are at least 12 members (`SHOW_STATS_AT_MEMBERS`); before that it asks for founding members.
 12. Sources, then footer.
 
+Besides the public page, `/privacy` (`src/app/privacy/page.tsx`) holds the privacy policy and the terms on one page, and `/terms` redirects to the terms section. It is linked from the public page footer and from the sign-up and sign-in forms. Every sentence on it describes what the code does today, so update it before shipping anything that keeps new information about members, such as the gathering check-ins and concern reports in the standing and safety plan. A lawyer or legal clinic should read it once before the pilot grows.
+
 The slideshow shows one photo at a time. Visitors can swipe or use the arrow buttons. It moves to the next photo every 6 seconds, stops while the pointer or keyboard focus is on it, has a Pause button, and does not move on its own for visitors whose device asks for reduced motion.
 
 ## Statistics to refresh

@@ -25,7 +25,7 @@ Decisions still open before sharing the link widely:
 1. Done: the coordinator contact email is set in Vercel Production. Add it to Preview too if previews should show it.
 2. Decide whether signup stays open or becomes invite-only for the first group.
 3. Decide whether new members should check a box agreeing to the six agreements at signup. Today the page asks members to keep them but signup does not record agreement.
-4. Add a privacy policy and terms page. Neither exists.
+4. Done: the privacy policy and terms are one page at `/privacy` (`/terms` redirects to its second half), linked from the public footer and the sign-up form. It describes only what the code does today. Account deletion is still a request to the coordinator, done by hand. A lawyer or legal clinic should read the page once before the pilot grows, and it must be updated before any feature that keeps new member data ships.
 5. Replace the made-up stories with real member stories, with permission, once the pilot has some.
 6. Remove unused legacy components (`ServiceCard`, `ToolButton`, `CommunityPulse`, `CommunityProjects`, `ContributionConstellation`, `WelcomeModal`, `AmplifyModal`, `KudosModal`, `CommunityFundModal`, `src/components/icons.tsx`) and the default Next.js files in `public/`.
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import type { PublicSummary } from "@/lib/types";
 import { formatCredits } from "@/lib/types";
 import { contactEmail } from "@/lib/site";
@@ -916,6 +917,9 @@ export function Landing({
             <a href="#questions" className="hover:text-cobalt">
               Questions
             </a>
+            <Link href="/privacy" className="hover:text-cobalt">
+              Privacy and terms
+            </Link>
             {contactEmail && (
               <a href={`mailto:${contactEmail}`} className="hover:text-cobalt">
                 Contact a coordinator
