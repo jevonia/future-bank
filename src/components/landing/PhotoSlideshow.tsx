@@ -23,7 +23,9 @@ export function PhotoSlideshow({ photos }: { photos: ArchivePhoto[] }) {
   const [current, setCurrent] = useState(0);
   // null until the viewer presses Play or Pause; then their choice wins.
   const [userPaused, setUserPaused] = useState<boolean | null>(null);
-  const [held, setHeld] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [manualAnnouncement, setManualAnnouncement] = useState("");
   const reduceMotion = useSyncExternalStore(
     subscribeToMotion,
     () => window.matchMedia(REDUCED_MOTION).matches,
@@ -33,8 +35,11 @@ export function PhotoSlideshow({ photos }: { photos: ArchivePhoto[] }) {
 
   function goTo(index: number) {
     const el = track.current;
-    if (!el) return;
+    if (!el || photos.length === 0) return;
     const next = (index + photos.length) % photos.length;
+    setManualAnnouncement(
+      `Photo ${next + 1} of ${photos.length}: ${photos[next].caption}`,
+    );
     el.scrollTo({
       left: next * el.clientWidth,
       behavior: reduceMotion ? "auto" : "smooth",
@@ -42,7 +47,7 @@ export function PhotoSlideshow({ photos }: { photos: ArchivePhoto[] }) {
   }
 
   useEffect(() => {
-    if (!playing || held) return;
+    if (!playing || hovered || focused) return;
     const timer = window.setTimeout(() => {
       const el = track.current;
       if (!el) return;
@@ -50,7 +55,7 @@ export function PhotoSlideshow({ photos }: { photos: ArchivePhoto[] }) {
       el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
     }, ADVANCE_MS);
     return () => window.clearTimeout(timer);
-  }, [playing, held, current, photos.length]);
+  }, [playing, hovered, focused, current, photos.length]);
 
   return (
     <div
@@ -58,10 +63,14 @@ export function PhotoSlideshow({ photos }: { photos: ArchivePhoto[] }) {
       aria-roledescription="slideshow"
       aria-label="More historical photos"
       className="min-w-0"
-      onMouseEnter={() => setHeld(true)}
-      onMouseLeave={() => setHeld(false)}
-      onFocus={() => setHeld(true)}
-      onBlur={() => setHeld(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setFocused(false);
+        }
+      }}
     >
       <div
         ref={track}
@@ -69,7 +78,7 @@ export function PhotoSlideshow({ photos }: { photos: ArchivePhoto[] }) {
           const el = event.currentTarget;
           setCurrent(Math.round(el.scrollLeft / el.clientWidth));
         }}
-        aria-live={playing ? "off" : "polite"}
+        aria-live="off"
         className="flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {photos.map((photo, index) => (
@@ -110,6 +119,10 @@ export function PhotoSlideshow({ photos }: { photos: ArchivePhoto[] }) {
           </figure>
         ))}
       </div>
+
+      <p role="status" aria-atomic="true" className="sr-only">
+        {manualAnnouncement}
+      </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button

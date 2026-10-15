@@ -368,7 +368,7 @@ export function Landing({
 
   return (
     <div className="min-h-screen bg-paper text-lg text-ink">
-      <header className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5 sm:px-8">
+      <header className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-8">
         <a href="#home" className="flex items-center gap-3">
           <LogoMark className="h-10 w-10" />
           <span className="whitespace-nowrap font-display text-xl font-bold sm:text-2xl">
