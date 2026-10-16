@@ -103,7 +103,7 @@ Background on machine-writing patterns: [Wikipedia: Signs of AI writing](https:/
 7. Four story cards: Denise (groceries), Marcus and Earl (car repair), Rosa (child care), Tyler (loneliness). The people are made up and the page says so. The prices and statistics are real.
 8. "We've done this before": mutual aid history, Edgar Cahn, and what we believe.
 9. Our agreements (six ground rules).
-10. Questions. One of them, "What do New, Introduced, Known, and Steward mean?", links to `/standing`.
+10. Questions.
 11. Closing invitation. It shows live member counts once there are at least 12 members (`SHOW_STATS_AT_MEMBERS`); before that it asks for founding members.
 12. Sources, then footer.
 
