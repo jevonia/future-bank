@@ -365,6 +365,22 @@ export function Landing({
         )}
       </>,
     ],
+    [
+      "What do New, Introduced, Known, and Steward mean?",
+      <>
+        They are plain words for how well the community knows someone. A
+        steward meets you in person at a gathering, and over time neighbors who
+        have worked with you can vouch for you. Every member can post, ask, and
+        trade hours from the first day. A level is not a safety promise.{" "}
+        <Link
+          className="font-bold text-cobalt underline underline-offset-2"
+          href="/standing"
+        >
+          See how standing works
+        </Link>
+        .
+      </>,
+    ],
   ];
 
   return (
@@ -917,6 +933,9 @@ export function Landing({
             <a href="#questions" className="hover:text-cobalt">
               Questions
             </a>
+            <Link href="/standing" className="hover:text-cobalt">
+              How standing works
+            </Link>
             <Link href="/privacy" className="hover:text-cobalt">
               Privacy and terms
             </Link>

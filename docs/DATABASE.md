@@ -26,7 +26,25 @@ values ('REPLACE_WITH_CONFIRMED_USER_UUID','facilitator')
 on conflict do nothing;
 ```
 
-Members cannot insert or edit `member_roles`, and facilitators cannot approve their own requests. The SQL RPCs enforce the same 18 want criteria and five kudos labels as `src/lib/types.ts`; update both allowlists together if product choices change. Project contributions track volunteered time and do not mint credits; they also require a stable UUID `request_id` so retries do not inflate hours. Urgent alerts require each recipient's opt-in via `bank_set_urgent_opt_in`; `bank_amplify_want` limits each member to one alert per 24 hours and each want to once per seven days. Notifications are in-app rows; there is no external email or push delivery in these migrations.
+Members cannot insert or edit `member_roles`, and facilitators cannot approve their own requests.
+
+## Standing and safety migrations (not applied)
+
+`20261015000100_standing.sql` and `20261015000200_vouches_and_safety.sql` add the standing and safety plan's Phases 1 and 2. They are tested in PGlite (`supabase/tests/standing.integration.mjs`, and the bank suite now applies all four files) but **not applied to the hosted project**. Apply them in order, after the preflight and backup steps below. They add tables (`member_standing`, `standing_events`, `gatherings`, `gathering_checkins`, `concerns`, `concern_notes`, `standing_pauses`, `steward_nominations`, `vouches`, `exchange_first_meetings`, `exchange_safety_checkins`, `exchange_steward_notes`), a `min_standing` column on offers and wants, and `bank_*` RPCs. They replace `bank_request_exchange` and `bank_exchange_action` with the same signatures, and replace `bank_save_listing` with one that takes an optional `p_min_standing`, so older callers keep working.
+
+- A missing `member_standing` row means New. The backfill makes every `facilitator` a Steward and guesses nobody else. Fund review still uses the separate facilitator role.
+- Every change in standing goes through a steward RPC and writes `standing_events` with who and why. Levels move up one step at a time and are never lowered by an RPC; a pause stops new exchanges instead. Steward needs nominations from two active stewards, a 14-day wait from the second, Known standing, and no open concern. Known needs `bank_known_ready()`: 60 days, 3 completed exchanges with 2 partners, 2 vouches from active Known or Steward members, and no open concern. Keep `KNOWN_RULES` in `src/lib/standing.ts` in step.
+- Members read standing through `bank_member_standing()`, which never includes pauses, reasons, or concerns. Concerns are visible to the reporter and to stewards other than the subject. The vouch `home_answer` column is not granted to members; stewards read it with `bank_steward_vouches()`. Safety check-ins and after-exchange notes are visible to the writer and to stewards outside that exchange.
+
+Founding stewards beyond the backfilled facilitator are named with trusted SQL, after a human decision, the same way as the facilitator role:
+
+```sql
+insert into public.member_standing(user_id,level,steward_renew_by)
+values ('REPLACE_WITH_CONFIRMED_USER_UUID','steward',(now()+interval '1 year')::date)
+on conflict (user_id) do update set level='steward',steward_renew_by=excluded.steward_renew_by;
+insert into public.standing_events(member_id,kind,to_level,reason)
+values ('REPLACE_WITH_CONFIRMED_USER_UUID','level','steward','Founding steward named by the coordinator');
+``` The SQL RPCs enforce the same 18 want criteria and five kudos labels as `src/lib/types.ts`; update both allowlists together if product choices change. Project contributions track volunteered time and do not mint credits; they also require a stable UUID `request_id` so retries do not inflate hours. Urgent alerts require each recipient's opt-in via `bank_set_urgent_opt_in`; `bank_amplify_want` limits each member to one alert per 24 hours and each want to once per seven days. Notifications are in-app rows; there is no external email or push delivery in these migrations.
 
 For an offer listing, the caller requests help and the owner is the provider. For a want listing, the caller offers help and the owner is the requester. `initiator_id` records who sent the request. The invited member accepts or declines; both members confirm completion. This resolves the ambiguity in the initial API contract while keeping credit flow from requester to provider.
 

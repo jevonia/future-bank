@@ -164,7 +164,32 @@ export default function PrivacyAndTermsPage() {
             ]}
           />
           <p className="mt-5 leading-8 text-slate-700">
-            We do not ask for your home address, phone number, age, or ID.
+            So members can get to know each other safely, we also keep:
+          </p>
+          <List
+            items={[
+              <>
+                <strong>Your standing.</strong> That is the word New,
+                Introduced, Known, or Steward, plus a record of every change:
+                when it happened, which steward made it, and the reason they
+                wrote. We also keep who introduced you and at which gathering.{" "}
+                <Link className="font-bold text-cobalt underline underline-offset-2" href="/standing">
+                  How standing works
+                </Link>
+              </>,
+              "Gatherings: the name, time, and place, and which steward hosts it. When a steward checks you in, we keep which gathering, which steward, and when.",
+              "Who can say yes to each offer or request you post: Anyone, Introduced and up, or Known and up.",
+              "Vouches: the sentence a member writes about another member, how they know them, and their private answer to one question, whether they would be comfortable with that person in their home.",
+              "Concerns: who raised it, which member or exchange it is about, what they wrote, whether their name may be shared, the steward's reply, and notes stewards write while they look into it.",
+              "Pauses: who paused a member's standing, when, and the reason they wrote.",
+              "Steward nominations: which steward nominated whom, when, and why.",
+              "On an exchange: your answers to the first-meeting questions (where you'll meet, who knows where you'll be, when you'll check in), any check-in you tap during the exchange, and any private note you leave for stewards afterward.",
+            ]}
+          />
+          <p className="mt-5 leading-8 text-slate-700">
+            We do not ask for your home address, phone number, age, or ID, and
+            no level of standing ever requires them. We do not run background
+            checks.
             Please keep your address and phone number out of your listings.
             Share them in a message when you are ready.
           </p>
@@ -181,6 +206,13 @@ export default function PrivacyAndTermsPage() {
               "Only you can see your balance, your time record, your notices, and your settings.",
               "Messages and kudos in an exchange are seen only by the two people in it.",
               "Requests to the shared fund are seen by you and by the facilitators who review them.",
+              "Signed-in members can see each member's standing word, who introduced them and at which gathering, the date they joined, and how many exchanges they have finished with how many different members. They can also see vouches with the name of the person who wrote them, and the time and place of gatherings.",
+              "The private answer in a vouch, about being comfortable with someone in your home, is seen only by stewards.",
+              "Your gathering check-ins and the record of changes to your standing are seen by you and by the stewards.",
+              "A concern is seen by the person who raised it and by the stewards. The member it is about does not see it, and a steward never sees a concern about themselves. Steward notes and nominations are seen only by stewards.",
+              "A pause is seen by the paused member and by the stewards. It does not show on anyone's profile.",
+              "First-meeting answers are seen only by the two people in the exchange. Check-ins and private notes for stewards are seen by you and by stewards who are not part of that exchange. The other person never sees them.",
+              "When two stewards have nominated someone to be a steward, every member gets a notice with that person's name, so anyone can raise a concern in private.",
               "People who are not signed in see only totals: how many members there are and how many hours have been traded.",
               "The coordinator, who runs the site, can see all of this in order to keep the bank working and to sort things out when something goes wrong.",
             ]}
@@ -212,6 +244,11 @@ export default function PrivacyAndTermsPage() {
             device connects from.
           </p>
           <p className="mt-5 leading-8 text-slate-700">
+            The &quot;Tell a friend&quot; button on an exchange uses your own
+            phone&apos;s share or copy. The site does not send that message or
+            keep a copy, so only you know who you told.
+          </p>
+          <p className="mt-5 leading-8 text-slate-700">
             We do not sell your data. We do not show ads. We do not share your
             data with anyone else, and we would do so only if the law required
             it.
@@ -222,12 +259,15 @@ export default function PrivacyAndTermsPage() {
             items={[
               "You can change your username and picture any time in Profile settings.",
               "You can edit or archive your own offers and requests.",
+              "You can take back a vouch you wrote.",
+              "Concern records are the most private things the bank holds. They stay until the coordinator deletes them by hand. The plan is to review them once a year and delete the ones no longer needed.",
               <>
                 To delete your account,{" "}
                 <CoordinatorContact fallback="email the coordinator" />. There
                 is no delete button yet, so a person does it by hand. They will
-                remove your sign-in, profile, offers, requests, messages, and
-                notices as soon as they can. Hours you already traded in
+                remove your sign-in, profile, offers, requests, messages,
+                notices, standing record, check-ins, vouches, and the concerns
+                you raised as soon as they can. Hours you already traded in
                 completed exchanges stay in the bank&apos;s records, because
                 other members&apos; balances depend on them.
               </>,
@@ -236,11 +276,11 @@ export default function PrivacyAndTermsPage() {
 
           <Sub>What may change</Sub>
           <p className="mt-3 leading-8 text-slate-700">
-            We are planning ways for members to get to know each other, like
-            check-ins at community gatherings and a private way to tell a
-            steward about a concern. None of that exists yet. Before we add
-            anything that keeps new information about you, we will update this
-            page to say what is kept and who can see it.
+            Some time banks offer an optional check for people who do care
+            work, like watching children. We do not offer one. If the
+            community ever decides to, it will be optional, and we will update
+            this page before it starts. Before we add anything else that keeps
+            new information about you, we will update this page first.
           </p>
 
           <Sub>Questions</Sub>
@@ -286,7 +326,8 @@ export default function PrivacyAndTermsPage() {
           <List
             items={[
               "We check that each member's email address is real. We do not run background checks or check IDs.",
-              "We do not vouch for any member or any work. We cannot promise that a member is who they say they are, or that a job will be done well or safely.",
+              "The bank itself does not vouch for any member or any work. When a member vouches for someone, that is their own word. We cannot promise that a member is who they say they are, or that a job will be done well or safely.",
+              "A standing word like Introduced or Known says how well the community knows someone. It is not a promise that they are safe.",
               "You decide who to meet, where, and when. You are responsible for your own safety choices and for the help you give. Meet in public the first time if you like, tell a friend where you will be, and say no to anything that does not feel right.",
               "The bank has no insurance. If something breaks or someone gets hurt, the bank cannot pay for it.",
             ]}
@@ -294,10 +335,17 @@ export default function PrivacyAndTermsPage() {
 
           <Sub>Pausing or removing an account</Sub>
           <p className="mt-3 leading-8 text-slate-700">
-            The coordinator may pause or remove an account to keep members safe,
-            or if it is used for selling, spam, or harm. Most of the time they
-            will talk with you first. If your account is removed, the hours in
-            it are gone with it.
+            A steward may pause your standing while a concern is looked at. You
+            will be told, and told which steward to talk to. While it is
+            paused, you can&apos;t start or accept new exchanges, but you can
+            finish ones already under way. If nothing was wrong, the pause is
+            lifted and nothing shows on your profile.
+          </p>
+          <p className="mt-3 leading-8 text-slate-700">
+            The coordinator, with one other steward agreeing, may remove an
+            account to keep members safe, or if it is used for selling, spam,
+            or harm. Most of the time they will talk with you first. If your
+            account is removed, the hours in it are gone with it.
           </p>
 
           <Sub>Changes to this page</Sub>

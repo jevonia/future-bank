@@ -1,4 +1,5 @@
 import type { User } from '@supabase/supabase-js';
+import type { MinStanding, StandingLevel } from './standing';
 
 export interface MemberProfile {
   id: string;
@@ -16,6 +17,7 @@ export interface Offer {
   category: string;
   user_id: string;
   active: boolean;
+  min_standing?: MinStanding;
   profiles?: MemberProfile;
 }
 
@@ -30,6 +32,7 @@ export interface Want {
   is_urgent: boolean;
   amplified_at: string | null;
   criteria?: string[]; // Array of selected criteria
+  min_standing?: MinStanding;
   profiles?: MemberProfile;
 }
 
@@ -56,6 +59,90 @@ export interface AppState {
     urgentOptIn: boolean;
     availableMinutes: number;
     reservedMinutes: number;
+    /** False until the standing migrations are applied. */
+    standingReady: boolean;
+    /** Every member's public name and picture, for showing who did what. */
+    members: MemberProfile[];
+    standings: MemberStanding[];
+    gatherings: Gathering[];
+    checkins: GatheringCheckin[];
+    concerns: Concern[];
+    pauses: StandingPause[];
+    standingEvents: StandingEvent[];
+    vouches: Vouch[];
+    knownProgress: KnownProgress | null;
+    firstMeetings: FirstMeeting[];
+    safetyCheckins: SafetyCheckin[];
+    stewardNotes: ExchangeStewardNote[];
+    isSteward: boolean;
+    /** Present only for an active steward. */
+    steward: StewardData | null;
+}
+
+export interface MemberStanding {
+  user_id: string; level: StandingLevel; since: string;
+  introduced_by: string | null; introduced_at: string | null;
+  gathering_title: string | null; gathering_starts_at: string | null;
+  joined_at: string; completed_exchanges: number; exchange_partners: number;
+  steward_renew_by: string | null;
+}
+export interface Gathering {
+  id: number; title: string; starts_at: string; location: string; host_id: string; created_at: string;
+}
+export interface GatheringCheckin {
+  gathering_id: number; member_id: string; steward_id: string | null; checked_in_at: string;
+}
+export interface Concern {
+  id: number; reporter_id: string; about_id: string | null; exchange_id: number | null;
+  body: string; share_name: boolean; status: 'open' | 'responded' | 'closed';
+  response: string | null; responded_by: string | null; responded_at: string | null;
+  closed_at: string | null; created_at: string;
+}
+export interface ConcernNote {
+  id: number; concern_id: number; steward_id: string | null; body: string; created_at: string;
+}
+export interface StandingPause {
+  member_id: string; paused_by: string | null; concern_id: number | null; reason: string; paused_at: string;
+}
+export interface StandingEvent {
+  id: number; member_id: string; kind: 'level' | 'pause' | 'unpause' | 'renewal';
+  from_level: string | null; to_level: string | null; changed_by: string | null; reason: string; created_at: string;
+}
+export interface StewardNomination {
+  member_id: string; nominated_by: string; reason: string; created_at: string;
+}
+export interface Vouch {
+  id: number; voucher_id: string; member_id: string; sentence: string; basis: 'met' | 'exchange'; created_at: string;
+}
+export interface StewardVouch {
+  id: number; voucher_id: string; member_id: string; home_answer: 'yes' | 'no' | 'not_sure';
+  mutual_same_day: boolean; created_at: string;
+}
+export interface KnownProgress {
+  days_member: number; completed_exchanges: number; exchange_partners: number; vouches: number;
+}
+export interface KnownSuggestion extends KnownProgress {
+  member_id: string; vouchers_connected: boolean;
+}
+export interface FirstMeeting {
+  exchange_id: number; member_id: string; meet_place: string; who_knows: string; check_in_time: string; updated_at: string;
+}
+export interface SafetyCheckin {
+  id: number; exchange_id: number; member_id: string; kind: 'fine' | 'call_me'; created_at: string;
+}
+export interface ExchangeStewardNote {
+  exchange_id: number; member_id: string; body: string; created_at: string;
+}
+export interface SafetyFeedItem {
+  kind: 'call_me' | 'note'; exchange_id: number; member_id: string; other_id: string;
+  title: string; body: string | null; created_at: string;
+}
+export interface StewardData {
+  concernNotes: ConcernNote[];
+  nominations: StewardNomination[];
+  vouchDetails: StewardVouch[];
+  knownSuggestions: KnownSuggestion[];
+  safetyFeed: SafetyFeedItem[];
 }
 
 export type ExchangeStatus = 'pending' | 'accepted' | 'completed' | 'cancelled' | 'declined';
@@ -136,7 +223,8 @@ export const WANT_CRITERIA = [
   'one_time_only',
   'ongoing_help',
   'virtual_ok',
-  'in_person_only'
+  'in_person_only',
+  'someone_else_present'
 ] as const;
 
 export type WantCriteria = typeof WANT_CRITERIA[number];
@@ -160,5 +248,6 @@ export const CRITERIA_LABELS: Record<WantCriteria, string> = {
   one_time_only: 'One Time Only',
   ongoing_help: 'Ongoing Help',
   virtual_ok: 'Virtual OK',
-  in_person_only: 'In Person Only'
+  in_person_only: 'In Person Only',
+  someone_else_present: 'Someone Else There the First Time'
 };

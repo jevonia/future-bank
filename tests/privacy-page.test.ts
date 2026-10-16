@@ -10,6 +10,13 @@ describe('privacy and terms page', () => {
     assert.match(page, /id="terms"/);
   });
 
+  it('describes the standing and safety records before they ship', () => {
+    for (const record of ['standing', 'check', 'Vouches', 'Concerns', 'Pauses', 'nominations', 'first-meeting']) {
+      assert.match(page, new RegExp(record), record);
+    }
+    assert.match(page, /href="\/standing"/);
+  });
+
   it('follows the writing guide: no em dashes', () => {
     assert.equal(page.includes('—'), false, 'use a period or a comma instead of an em dash');
   });

@@ -1,6 +1,6 @@
 # New Future Bank roadmap
 
-Updated October 14, 2026. This roadmap is for reviving the existing time-bank concept with one small, real community. It prioritizes trust, personal introductions, and learning from actual exchanges over adding more software features.
+Updated October 15, 2026. This roadmap is for reviving the existing time-bank concept with one small, real community. It prioritizes trust, personal introductions, and learning from actual exchanges over adding more software features.
 
 ## Current read
 
@@ -32,6 +32,19 @@ Start with roughly 10–20 people from one neighborhood, organization, or existi
 5. For urgent requests, explain that notifications are currently in-app and appear while the member is using the dashboard or after a refresh. Use the community's established, consent-based channel for time-sensitive coordination during the pilot; do not imply email or push delivery.
 
 Use learning signals, not growth targets: Did members find a match? How long did a request wait? Did both sides understand the reservation and confirmation steps? Did anyone return for another exchange? What requests went unanswered, and why? Review these with members weekly and adjust onboarding and norms before adding features.
+
+## Standing and safety (built, not applied)
+
+Phases 1 and 2 of the [standing and safety plan](STANDING_AND_SAFETY_PLAN.md) are built in code and tested locally, as of October 15, 2026: standing levels (New, Introduced, Known, Steward), gatherings and steward check-ins, private concerns with steward replies, pauses, steward nominations, "Who can say yes?" on listings, vouches, Known suggestions that a steward confirms, and the first-meeting card with "Tell a friend," check-ins, and a private note for stewards. The public explainer is at `/standing`. The migrations are `20261015000100_standing.sql` and `20261015000200_vouches_and_safety.sql`. **Neither is applied to the hosted project.**
+
+Before members use it:
+
+1. Apply both migrations to the hosted project after the preflight and backup steps in [DATABASE.md](DATABASE.md). Either order with the app deploy is safe: the dashboard hides standing until the migration exists, and older app code still saves listings after it is applied.
+2. Confirm the facilitator was backfilled as the first steward, and name two or three founding stewards with the trusted SQL in [DATABASE.md](DATABASE.md). Stewards agree to the steward commitments in writing.
+3. Schedule the first gathering and post it from the dashboard. Paper sign-in sheets can be entered afterward.
+4. Ask the first circle the plan's open decisions: the words, the Known thresholds (60 days, 3 exchanges, 2 members, 2 vouches), and whether care work should default to "Introduced and up."
+
+Not built yet: Phase 3 ("Care checked"), the "woman or nonbinary helper preferred" criterion (waits on member discussion), an on-call steward rotation (every steward gets call requests), email or text delivery of call requests (they are in-app notices only), and removing an account from inside the app.
 
 ## P2 — Stabilize from observed use
 
