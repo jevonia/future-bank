@@ -33,14 +33,14 @@ Start with roughly 10–20 people from one neighborhood, organization, or existi
 
 Use learning signals, not growth targets: Did members find a match? How long did a request wait? Did both sides understand the reservation and confirmation steps? Did anyone return for another exchange? What requests went unanswered, and why? Review these with members weekly and adjust onboarding and norms before adding features.
 
-## Standing and safety (built, not applied)
+## Standing and safety (built and applied)
 
-Phases 1 and 2 of the [standing and safety plan](STANDING_AND_SAFETY_PLAN.md) are built in code and tested locally, as of October 15, 2026: standing levels (New, Introduced, Known, Steward), gatherings and steward check-ins, private concerns with steward replies, pauses, steward nominations, "Who can say yes?" on listings, vouches, Known suggestions that a steward confirms, and the first-meeting card with "Tell a friend," check-ins, and a private note for stewards. The public explainer is at `/standing`. The migrations are `20261015000100_standing.sql` and `20261015000200_vouches_and_safety.sql`. **Neither is applied to the hosted project.**
+Phases 1 and 2 of the [standing and safety plan](STANDING_AND_SAFETY_PLAN.md) are built in code and tested locally, as of October 15, 2026: standing levels (New, Introduced, Known, Steward), gatherings and steward check-ins, private concerns with steward replies, pauses, steward nominations, "Who can say yes?" on listings, vouches, Known suggestions that a steward confirms, and the first-meeting card with "Tell a friend," check-ins, and a private note for stewards. The public explainer is at `/standing`. The migrations are `20261015000100_standing.sql` and `20261015000200_vouches_and_safety.sql`. Both were applied to the hosted project on October 15, 2026, and the facilitator was backfilled as the first Steward; see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 Before members use it:
 
-1. Apply both migrations to the hosted project after the preflight and backup steps in [DATABASE.md](DATABASE.md). Either order with the app deploy is safe: the dashboard hides standing until the migration exists, and older app code still saves listings after it is applied.
-2. Confirm the facilitator was backfilled as the first steward, and name two or three founding stewards with the trusted SQL in [DATABASE.md](DATABASE.md). Stewards agree to the steward commitments in writing.
+1. Check the signed-in standing flows on the production site (standing card, gatherings, a steward check-in, "Who can say yes?") with the facilitator account or a synthetic member, and turn on Supabase backups, which the project does not have.
+2. Name two or three founding stewards with the trusted SQL in [DATABASE.md](DATABASE.md). Stewards agree to the steward commitments in writing.
 3. Schedule the first gathering and post it from the dashboard. Paper sign-in sheets can be entered afterward.
 4. Ask the first circle the plan's open decisions: the words, the Known thresholds (60 days, 3 exchanges, 2 members, 2 vouches), and whether care work should default to "Introduced and up."
 

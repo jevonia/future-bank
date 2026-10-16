@@ -2,9 +2,16 @@
 
 Updated October 14, 2026. The bank migrations are live and the new app is deployed at the existing production domain. Production smoke checks, hosted email/authentication QA, and hosted core-community QA have passed for synthetic users. Synthetic QA accounts and records have been cleaned up and the original fund baseline restored. The real member setup email was accepted by the sender, but inbox delivery and account setup are unverified. The release was merged through [PR #1](https://github.com/jevonia/future-bank/pull/1) into main at `bf80508`; [main CI run 38629341354](https://github.com/jevonia/future-bank/actions/runs/38629341354) passed.
 
-## Pending database changes
+## Standing and safety migrations (applied October 15, 2026)
 
-`20261015000100_standing.sql` and `20261015000200_vouches_and_safety.sql` (standing and safety, Phases 1 and 2) are committed but **not applied** to Supabase project `aitnqoqdkhvlgxuujowb`. The app deploys safely either before or after them: it hides standing until the migration exists. Apply them only after the preflight and backup steps in [DATABASE.md](DATABASE.md), and record the result here.
+`20261015000100_standing.sql` and `20261015000200_vouches_and_safety.sql` (standing and safety, Phases 1 and 2) were applied to Supabase project `aitnqoqdkhvlgxuujowb` on the evening of October 15, 2026, after [PR #7](https://github.com/jevonia/future-bank/pull/7) merged to main at `cfd8d22`. `supabase_migrations.schema_migrations` now records all four versions. Do not reapply them.
+
+- **Preflight (read-only):** migration history was exactly the two October 14 versions; none of the new tables, functions, or `min_standing` columns existed; the three replaced functions matched the repo source; the ledger reconciled with no mismatches. Four members, one facilitator, one offer, one want, no exchanges.
+- **Backup:** the Management API listed **no Supabase backups** for the project, and point-in-time recovery is off. Before the write, a private read-only snapshot of profiles, accounts, offers, wants, member roles, ledger entries, and the live definitions and grants of the three replaced functions was saved under `.private/`, together with a rollback script built from those definitions. The rollback was rehearsed. Turning on platform backups is still open.
+- **Rehearsal:** the exact request was run in PGlite on a fixture with the live functions and Supabase's default grants, then rolled back (schema and grants matched the prior state exactly) and re-applied.
+- **Apply:** one serializable transaction through the Management API, guarded against drift since preflight, pinned to the rehearsed SQL by hash. HTTP 201.
+- **Postflight:** all 13 read-only checks passed: four migration versions; RLS on all 12 new tables; no client writes and no anonymous reads on them; the vouch `home_answer` column hidden from members; no anonymous execute on any standing function; members can execute exactly the granted RPCs; pinned empty search paths; one `bank_save_listing`; the facilitator backfilled as Steward with one `standing_events` row; offers and wants unchanged apart from `min_standing='anyone'`; ledger reconciles; Auth, profile, account, and ledger counts unchanged. Anonymous REST calls to `bank_member_standing`, `bank_steward_vouches`, and the `vouches` table return 401 permission denied.
+- **Not yet checked:** signed-in standing flows on the production site (the dashboard shows standing once `bank_member_standing` exists).
 
 ## Current state
 

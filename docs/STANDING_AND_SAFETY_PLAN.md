@@ -1,6 +1,6 @@
 # Standing and safety plan
 
-Drafted October 15, 2026. This is a plan, not a spec. Phases 1 and 2 are now built in code and tested locally, but not applied to the hosted database; see [ROADMAP.md](ROADMAP.md) for what was built, what was left out, and the steps before members use it. It answers one question that people, mostly women, asked first when they saw the site: "How do I stay safe?"
+Drafted October 15, 2026. This is a plan, not a spec. Phases 1 and 2 are now built and applied to the hosted database (October 15, 2026); see [ROADMAP.md](ROADMAP.md) for what was built, what was left out, and the steps before members use it. It answers one question that people, mostly women, asked first when they saw the site: "How do I stay safe?"
 
 The short answer we want to be able to give: **You get to know people the way neighbors always have, a little at a time and in company, and the site keeps track of who has been met so you never have to take a stranger's word for it.**
 
