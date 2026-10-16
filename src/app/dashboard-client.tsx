@@ -16,6 +16,16 @@ import { EmailConfirmationBanner } from "@/components/EmailConfirmationBanner";
 import { Landing } from "@/components/landing/Landing";
 import { GettingStarted } from "@/components/dashboard/GettingStarted";
 import { PlusGlyph, StarGlyph } from "@/components/illustrations";
+import { buildStandingIndex } from "@/lib/standing-view";
+import { MIN_STANDING_LABELS, meetsMinimum } from "@/lib/standing";
+import { StandingBadge } from "@/components/standing/StandingBadge";
+import {
+  StandingDialogs,
+  type StandingDialog,
+} from "@/components/standing/StandingDialogs";
+import { Gatherings, YourStanding } from "@/components/standing/StandingPanel";
+import { StewardDesk } from "@/components/standing/StewardDesk";
+import { SafetyCard } from "@/components/standing/SafetyCard";
 
 type Intent = { kind: "offer" | "want"; item: Offer | Want };
 type DialogState =
@@ -93,6 +103,12 @@ export default function DashboardClient({
   );
   const [busy, setBusy] = useState("");
   const [actionError, setActionError] = useState("");
+  const [standingDialog, setStandingDialogState] =
+    useState<StandingDialog | null>(null);
+  const standing = useMemo(
+    () => buildStandingIndex(serverState),
+    [serverState],
+  );
 
   const currentUserId = serverState.user?.id;
   const summary = serverState.publicSummary;
@@ -256,6 +272,68 @@ export default function DashboardClient({
     }
   }
 
+  function setStandingDialog(next: StandingDialog | null) {
+    setActionError("");
+    setStandingDialogState(next);
+  }
+
+  /** Owner name, standing word, and the "Who can say yes?" gate on a listing. */
+  function listingFooter(
+    kind: "offer" | "want",
+    item: Offer | Want,
+    buttonClass: string,
+    label: string,
+  ) {
+    const owner = item.profiles?.username || "Community member";
+    const min = item.min_standing ?? "anyone";
+    const viewerPaused = standing.paused.has(currentUserId ?? "");
+    const allowed =
+      !serverState.standingReady ||
+      (!viewerPaused &&
+        meetsMinimum(standing.levelOf(currentUserId ?? ""), min));
+    return (
+      <>
+        {serverState.standingReady && min !== "anyone" && (
+          <p className="mt-3 text-xs font-semibold text-slate-600">
+            Who can say yes: {MIN_STANDING_LABELS[min]}
+          </p>
+        )}
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+          {serverState.standingReady ? (
+            <button
+              className="flex items-center gap-2 text-left text-xs text-slate-600 hover:underline"
+              onClick={() =>
+                setStandingDialog({ kind: "neighbor", memberId: item.user_id })
+              }
+              aria-label={`About ${owner}`}
+            >
+              {owner}
+              <StandingBadge level={standing.levelOf(item.user_id)} />
+            </button>
+          ) : (
+            <span className="text-xs text-slate-500">{owner}</span>
+          )}
+          <button
+            className={`${button} ${buttonClass}`}
+            disabled={!allowed}
+            onClick={() => openRequest(kind, item)}
+          >
+            {label}
+          </button>
+        </div>
+        {!allowed && (
+          <p className="mt-2 text-xs leading-5 text-slate-600">
+            {viewerPaused
+              ? "A steward has asked to talk with you before your next exchange."
+              : min === "known"
+                ? "This neighbor asked for Known neighbors."
+                : "This neighbor asked for members a steward has met. Come to a gathering to be introduced."}
+          </p>
+        )}
+      </>
+    );
+  }
+
   function closeDialog() {
     setDialog("none");
     setActionError("");
@@ -406,6 +484,31 @@ export default function DashboardClient({
             setWantOpen(true);
           }}
         />
+        {serverState.standingReady && currentUserId && (
+          <>
+            <section className="grid gap-5 lg:grid-cols-2">
+              <YourStanding
+                state={serverState}
+                index={standing}
+                currentUserId={currentUserId}
+              />
+              <Gatherings
+                state={serverState}
+                index={standing}
+                currentUserId={currentUserId}
+                onDialog={setStandingDialog}
+              />
+            </section>
+            {serverState.isSteward && (
+              <StewardDesk
+                state={serverState}
+                index={standing}
+                currentUserId={currentUserId}
+                onDialog={setStandingDialog}
+              />
+            )}
+          </>
+        )}
         <section className="grid gap-5 lg:grid-cols-[1.3fr_.7fr]">
           <DashboardCard title="Community pulse" eyebrow="Real activity">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -512,6 +615,17 @@ export default function DashboardClient({
               </select>
             )}
           </div>
+          {serverState.standingReady && (
+            <p className="-mt-2 mb-4 text-sm leading-6 text-slate-600">
+              Words like Introduced and Known say how well the community knows
+              someone. They are not a safety promise. Tap a name to see what
+              they mean, or read{" "}
+              <a href="/standing" className="font-bold text-violet-800 underline">
+                how standing works
+              </a>
+              .
+            </p>
+          )}
           {marketTab === "offers" ? (
             visibleOffers.length ? (
               <div className="grid gap-3 md:grid-cols-2">
@@ -532,17 +646,12 @@ export default function DashboardClient({
                     <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">
                       {item.description || "No additional details yet."}
                     </p>
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="text-xs text-slate-500">
-                        {item.profiles?.username || "Community member"}
-                      </span>
-                      <button
-                        className={`${button} bg-violet-700 text-white hover:bg-violet-800`}
-                        onClick={() => openRequest("offer", item)}
-                      >
-                        Ask about this
-                      </button>
-                    </div>
+                    {listingFooter(
+                      "offer",
+                      item,
+                      "bg-violet-700 text-white hover:bg-violet-800",
+                      "Ask about this",
+                    )}
                   </article>
                 ))}
               </div>
@@ -591,17 +700,12 @@ export default function DashboardClient({
                       ))}
                     </div>
                   )}
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      {item.profiles?.username || "Community member"}
-                    </span>
-                    <button
-                      className={`${button} bg-teal-700 text-white hover:bg-teal-800`}
-                      onClick={() => openRequest("want", item)}
-                    >
-                      Offer to help
-                    </button>
-                  </div>
+                  {listingFooter(
+                    "want",
+                    item,
+                    "bg-teal-700 text-white hover:bg-teal-800",
+                    "Offer to help",
+                  )}
                 </article>
               ))}
             </div>
@@ -741,6 +845,34 @@ export default function DashboardClient({
               setKudosLabels([]);
               setDialog("kudos");
             }}
+            {...(serverState.standingReady
+              ? {
+                  onOpenMember: (memberId: string) =>
+                    setStandingDialog({ kind: "neighbor", memberId }),
+                  onConcern: (exchange: (typeof liveExchanges)[number]) =>
+                    setStandingDialog({
+                      kind: "concern",
+                      aboutId: null,
+                      exchangeId: exchange.id,
+                    }),
+                  renderSafety: (exchange: (typeof liveExchanges)[number]) => (
+                    <SafetyCard
+                      key={exchange.id}
+                      exchange={exchange}
+                      exchanges={serverState.exchanges}
+                      currentUserId={currentUserId!}
+                      otherName={standing.name(
+                        exchange.provider_id === currentUserId
+                          ? exchange.requester_id
+                          : exchange.provider_id,
+                      )}
+                      state={serverState}
+                      act={act}
+                      busy={busy}
+                    />
+                  ),
+                }
+              : {})}
           />
         </section>
 
@@ -1212,12 +1344,14 @@ export default function DashboardClient({
             initialData={offerDraft}
             onClose={() => setOfferOpen(false)}
             onOfferAdded={() => router.refresh()}
+            showWhoCanSayYes={serverState.standingReady}
           />
           <AddWantModal
             isOpen={wantOpen}
             initialData={wantDraft}
             onClose={() => setWantOpen(false)}
             onWantAdded={() => router.refresh()}
+            showWhoCanSayYes={serverState.standingReady}
           />
           <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
           <DashboardDialogs
@@ -1241,6 +1375,20 @@ export default function DashboardClient({
             sendKudos={sendKudos}
           />
         </>
+      )}
+      {/* Kept in the read-only preview so the wording can be reviewed; act()
+          does nothing there. */}
+      {currentUserId && (
+        <StandingDialogs
+          dialog={standingDialog}
+          setDialog={setStandingDialog}
+          state={serverState}
+          index={standing}
+          currentUserId={currentUserId}
+          act={act}
+          busy={busy}
+          actionError={actionError}
+        />
       )}
     </div>
   );

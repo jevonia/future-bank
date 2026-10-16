@@ -21,6 +21,9 @@ export function ExchangeDesk({
   onSendMessage,
   onAction,
   onKudos,
+  onOpenMember,
+  onConcern,
+  renderSafety,
 }: {
   exchanges: Exchange[];
   currentExchange: Exchange | null;
@@ -34,7 +37,20 @@ export function ExchangeDesk({
   onSendMessage: (event: React.FormEvent<HTMLFormElement>) => void;
   onAction: (action: CommunityAction, payload: Record<string, unknown>) => void;
   onKudos: () => void;
+  /** Opens the other member's standing. */
+  onOpenMember?: (memberId: string) => void;
+  onConcern?: (exchange: Exchange) => void;
+  renderSafety?: (exchange: Exchange) => React.ReactNode;
 }) {
+  const otherId = currentExchange
+    ? currentExchange.provider_id === currentUserId
+      ? currentExchange.requester_id
+      : currentExchange.provider_id
+    : null;
+  const otherName =
+    (currentExchange?.provider_id === currentUserId
+      ? currentExchange?.requester?.username
+      : currentExchange?.provider?.username) || "neighbor";
   return (
     <DashboardCard title="Your exchange desk" eyebrow="Coordinate privately">
       <div className="grid gap-4 sm:grid-cols-[minmax(10rem,.7fr)_1.3fr]">
@@ -80,6 +96,14 @@ export function ExchangeDesk({
                   {formatCredits(currentExchange.minutes)} TC ·{" "}
                   {currentExchange.status}
                 </p>
+                {onOpenMember && otherId && (
+                  <button
+                    className="mt-1 text-xs font-bold text-violet-800 underline"
+                    onClick={() => onOpenMember(otherId)}
+                  >
+                    About {otherName}
+                  </button>
+                )}
               </div>
               <span className="text-[.68rem] text-slate-500">
                 Private thread
@@ -237,6 +261,18 @@ export function ExchangeDesk({
                   Send kudos
                 </button>
               </div>
+            )}
+            {renderSafety?.(currentExchange)}
+            {onConcern && (
+              <p className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-600">
+                Something not right?{" "}
+                <button
+                  className="font-bold text-violet-800 underline"
+                  onClick={() => onConcern(currentExchange)}
+                >
+                  Tell a steward about a concern
+                </button>
+              </p>
             )}
           </div>
         ) : (

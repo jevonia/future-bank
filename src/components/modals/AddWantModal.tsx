@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Dialog } from "@/components/ui/Dialog";
+import {
+  WhoCanSayYes,
+  suggestedMinimum,
+} from "@/components/standing/WhoCanSayYes";
+import type { MinStanding } from "@/lib/standing";
 import { mutateCommunity } from "@/lib/community-api";
 import {
   CATEGORIES,
@@ -15,6 +20,7 @@ type ListingDraft = {
   title?: string | null;
   description?: string | null;
   category?: string | null;
+  min_standing?: MinStanding;
   criteria?: string[];
 };
 
@@ -23,16 +29,21 @@ export function AddWantModal({
   onClose,
   initialData,
   onWantAdded,
+  showWhoCanSayYes = false,
 }: {
   isOpen: boolean;
   onClose: () => void;
   initialData?: ListingDraft;
   onWantAdded?: () => void;
+  /** Off until the standing migration is applied. */
+  showWhoCanSayYes?: boolean;
 }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Skills");
   const [criteria, setCriteria] = useState<WantCriteria[]>([]);
+  const [minStanding, setMinStanding] = useState<MinStanding>("anyone");
+  const [minTouched, setMinTouched] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const categoryOptions =
@@ -45,6 +56,8 @@ export function AddWantModal({
     setTitle(initialData?.title || "");
     setDescription(initialData?.description || "");
     setCategory(initialData?.category || "Skills");
+    setMinStanding(initialData?.min_standing || "anyone");
+    setMinTouched(Boolean(initialData));
     setCriteria(
       (initialData?.criteria || []).filter((item): item is WantCriteria =>
         WANT_CRITERIA.includes(item as WantCriteria),
@@ -72,6 +85,7 @@ export function AddWantModal({
         title: title.trim(),
         description: description.trim(),
         category: category.trim() || "Skills",
+        ...(showWhoCanSayYes ? { min_standing: minStanding } : {}),
         criteria,
       });
       onWantAdded?.();
@@ -124,7 +138,10 @@ export function AddWantModal({
           <select
             className="form-input"
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              if (!minTouched) setMinStanding(suggestedMinimum(e.target.value));
+            }}
           >
             {categoryOptions.map((option) => (
               <option key={option}>{option}</option>
@@ -152,6 +169,17 @@ export function AddWantModal({
             ))}
           </div>
         </fieldset>
+        {showWhoCanSayYes && (
+          <WhoCanSayYes
+            kind="want"
+            value={minStanding}
+            suggested={!minTouched && minStanding !== "anyone"}
+            onChange={(value) => {
+              setMinStanding(value);
+              setMinTouched(true);
+            }}
+          />
+        )}
         {error && (
           <p role="alert" className="form-error">
             {error}

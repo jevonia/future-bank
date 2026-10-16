@@ -53,6 +53,7 @@ All drawings are hand-written SVG in `src/components/illustrations.tsx` and shar
 - Story drawings: `GroceryArt`, `CarArt`, `KidsArt`, `PhoneArt`.
 - Step and feature drawings: `OfferCardArt`, `AskCardArt`, `MugsArt`, `ReturnClockArt`, `FundJarArt`, `GardenArt`, `CircleArt`.
 - Small glyphs: `StarGlyph`, `PlusGlyph`.
+- Standing graphic: `StandingPath` and `VouchingFlow` in `src/components/standing/StandingGraphic.tsx`. See "Standing words" below.
 
 The share image (`src/app/opengraph-image.tsx`) reuses `HeroScene`. The image renderer only accepts plain SVG elements, so the file flattens helper components first. It loads Gelasio (matches Georgia) and Noto Sans from Google Fonts while building; if that fails it falls back to a default font. `src/app/apple-icon.tsx` renders the logo for phone home screens.
 
@@ -106,7 +107,19 @@ Background on machine-writing patterns: [Wikipedia: Signs of AI writing](https:/
 11. Closing invitation. It shows live member counts once there are at least 12 members (`SHOW_STATS_AT_MEMBERS`); before that it asks for founding members.
 12. Sources, then footer.
 
-Besides the public page, `/privacy` (`src/app/privacy/page.tsx`) holds the privacy policy and the terms on one page, and `/terms` redirects to the terms section. It is linked from the public page footer and from the sign-up and sign-in forms. Every sentence on it describes what the code does today, so update it before shipping anything that keeps new information about members, such as the gathering check-ins and concern reports in the standing and safety plan. A lawyer or legal clinic should read it once before the pilot grows.
+Besides the public page, `/privacy` (`src/app/privacy/page.tsx`) holds the privacy policy and the terms on one page, and `/terms` redirects to the terms section. It is linked from the public page footer and from the sign-up and sign-in forms. Every sentence on it describes what the code does today, so update it before shipping anything that keeps new information about members. It now covers standing, gathering check-ins, vouches, concerns, pauses, steward nominations, and the first-meeting card. A lawyer or legal clinic should read it once before the pilot grows.
+
+`/standing` (`src/app/standing/page.tsx`) explains the four levels of standing and how vouching works. It is linked from the public page footer, from a question in "Things people often ask," from the privacy page, and from the dashboard (the "Your standing" card, the note above "Find a neighbor," every member's profile dialog, and the "Who can say yes?" field). It is a separate page rather than a section of `/` because the same explanation has to be reachable from inside the dashboard and from every place a level appears, and because the public page is already long. It is the only page with a dark-mode style so far.
+
+## Standing words
+
+The standing and safety plan (`docs/STANDING_AND_SAFETY_PLAN.md`) names four levels. The site uses the words New, Introduced, Known, and Steward, never the plan's letters. All level copy lives in `src/lib/standing.ts` (`LEVEL_INFO`, `NOT_A_PROMISE`, `KNOWN_RULES`), so the explainer page, the dashboard, and the tests say the same thing. Change the words there, not in components.
+
+- **Never a level alone.** The plan's "false confidence" rule: wherever a level appears, the words for what it means and does not mean are next to it or one tap away. The explainer opens with "A level is not a safety promise." The dashboard shows `LevelMeaning` in "Your standing" and in every profile dialog, and a one-line note sits above "Find a neighbor."
+- **No scores.** No stars, percentages, or counts bigger than "6 exchanges with 4 members." Pauses and concerns never show on a profile.
+- **Colors help, words carry the meaning.** Each level has a tone (`LEVEL_TONES` in `StandingBadge.tsx`): slate for New, sky and cobalt for Introduced, mint and leaf for Known, sun for Steward.
+- **The graphic** (`StandingPath`) is an ordered list of four cards joined by a dashed path. It runs across on wide screens, with a short label on each connector, and down a single column on a phone. The drawings are decorative inline SVG (a sprout, two people, a circle of neighbors, a lantern). All text is real text, and it has `dark:` styles. `VouchingFlow` shows the four steps of a vouch next to an example of what members see and what only stewards see. The example people are made up and the page says so.
+- **Dates** in standing UI use `COMMUNITY_TIME_ZONE` (`NEXT_PUBLIC_COMMUNITY_TIME_ZONE`, default `America/New_York`) so the server and the browser print the same gathering time.
 
 The slideshow shows one photo at a time. Visitors can swipe or use the arrow buttons. It moves to the next photo every 6 seconds, stops while the pointer or keyboard focus is on it, has a Pause button, and does not move on its own for visitors whose device asks for reduced motion.
 
@@ -131,6 +144,7 @@ The numbers were checked in October 2026. Re-check them about once a year.
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `NEXT_PUBLIC_SITE_URL`                | Base URL used in share-preview tags. Defaults to `https://newfuturebank.com`.                                          |
 | `NEXT_PUBLIC_COMMUNITY_CONTACT_EMAIL` | Shows a coordinator address in the FAQ and footer. Hidden when unset. Set in Vercel Production as of October 15, 2026. |
+| `NEXT_PUBLIC_COMMUNITY_TIME_ZONE`     | Time zone for gathering times and standing dates. Defaults to `America/New_York`.                                      |
 
 ## Previewing
 
@@ -138,4 +152,4 @@ The numbers were checked in October 2026. Re-check them about once a year.
 npm run dev
 ```
 
-Open http://localhost:3000 for the public page. To see the signed-in dashboard with sample data, start with `BANK_QA_FIXTURE=1 npm run dev` and open http://localhost:3000/qa/dashboard. The share image is at `/opengraph-image`.
+Open http://localhost:3000 for the public page and http://localhost:3000/standing for the standing explainer. To see the signed-in dashboard with sample data, start with `BANK_QA_FIXTURE=1 npm run dev` and open http://localhost:3000/qa/dashboard. That sample member is a steward, so the steward desk shows. Add `?standing=new` to see the same dashboard as a New member. The share image is at `/opengraph-image`.

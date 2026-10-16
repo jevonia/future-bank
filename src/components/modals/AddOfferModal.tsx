@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Dialog } from "@/components/ui/Dialog";
+import {
+  WhoCanSayYes,
+  suggestedMinimum,
+} from "@/components/standing/WhoCanSayYes";
+import type { MinStanding } from "@/lib/standing";
 import { mutateCommunity } from "@/lib/community-api";
 import { CATEGORIES } from "@/lib/types";
 
@@ -10,6 +15,7 @@ type ListingDraft = {
   title?: string | null;
   description?: string | null;
   category?: string | null;
+  min_standing?: MinStanding;
 };
 
 export function AddOfferModal({
@@ -17,15 +23,20 @@ export function AddOfferModal({
   onClose,
   initialData,
   onOfferAdded,
+  showWhoCanSayYes = false,
 }: {
   isOpen: boolean;
   onClose: () => void;
   initialData?: ListingDraft;
   onOfferAdded?: () => void;
+  /** Off until the standing migration is applied. */
+  showWhoCanSayYes?: boolean;
 }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Skills");
+  const [minStanding, setMinStanding] = useState<MinStanding>("anyone");
+  const [minTouched, setMinTouched] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const categoryOptions =
@@ -38,6 +49,8 @@ export function AddOfferModal({
     setTitle(initialData?.title || "");
     setDescription(initialData?.description || "");
     setCategory(initialData?.category || "Skills");
+    setMinStanding(initialData?.min_standing || "anyone");
+    setMinTouched(Boolean(initialData));
     setError("");
   }, [initialData, isOpen]);
 
@@ -52,6 +65,7 @@ export function AddOfferModal({
         title: title.trim(),
         description: description.trim(),
         category: category.trim() || "Skills",
+        ...(showWhoCanSayYes ? { min_standing: minStanding } : {}),
       });
       onOfferAdded?.();
       onClose();
@@ -103,13 +117,27 @@ export function AddOfferModal({
           <select
             className="form-input"
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              if (!minTouched) setMinStanding(suggestedMinimum(e.target.value));
+            }}
           >
             {categoryOptions.map((option) => (
               <option key={option}>{option}</option>
             ))}
           </select>
         </label>
+        {showWhoCanSayYes && (
+          <WhoCanSayYes
+            kind="offer"
+            value={minStanding}
+            suggested={!minTouched && minStanding !== "anyone"}
+            onChange={(value) => {
+              setMinStanding(value);
+              setMinTouched(true);
+            }}
+          />
+        )}
         {error && (
           <p role="alert" className="form-error">
             {error}

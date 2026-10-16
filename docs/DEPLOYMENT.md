@@ -2,6 +2,10 @@
 
 Updated October 14, 2026. The bank migrations are live and the new app is deployed at the existing production domain. Production smoke checks, hosted email/authentication QA, and hosted core-community QA have passed for synthetic users. Synthetic QA accounts and records have been cleaned up and the original fund baseline restored. The real member setup email was accepted by the sender, but inbox delivery and account setup are unverified. The release was merged through [PR #1](https://github.com/jevonia/future-bank/pull/1) into main at `bf80508`; [main CI run 38629341354](https://github.com/jevonia/future-bank/actions/runs/38629341354) passed.
 
+## Pending database changes
+
+`20261015000100_standing.sql` and `20261015000200_vouches_and_safety.sql` (standing and safety, Phases 1 and 2) are committed but **not applied** to Supabase project `aitnqoqdkhvlgxuujowb`. The app deploys safely either before or after them: it hides standing until the migration exists. Apply them only after the preflight and backup steps in [DATABASE.md](DATABASE.md), and record the result here.
+
 ## Current state
 
 - **Vercel:** target `future-bank`, project ID `prj_O0wo6gqYzDOLQ6X3Ramg4TrgU5B9`, scope `novas-projects-c5420b8e`. Do not select the separate `future-bank-org` project. The production branch setting is `main`; Node.js 22 and the existing `newfuturebank.com` association were verified. Production deployment `dpl_5KN846JAkvzBDvtAqZnga5FUYPxe` is READY. Production smoke checks passed: provider discovery reports Google disabled, `/qa/dashboard` returns 404, anonymous community API access is denied with 401, and a cross-origin mutation is denied with 403.

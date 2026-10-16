@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/auth-config';
-import type { AppState, MemberProfile, PublicSummary } from '@/lib/types';
+import type { AppState, KnownProgress, MemberProfile, MemberStanding, PublicSummary, StewardData } from '@/lib/types';
 
 export function emptyCommunityState(): AppState {
   return {
@@ -9,6 +9,9 @@ export function emptyCommunityState(): AppState {
     notifications: [], kudos: [], projects: [], contributions: [], fundRequests: [],
     communityFund: { balance_minutes: 0 }, publicSummary: { member_count: 0, completed_exchanges: 0, contributed_minutes: 0, active_projects: 0 },
     isFacilitator: false, urgentOptIn: false, availableMinutes: 0, reservedMinutes: 0,
+    standingReady: false, members: [], standings: [], gatherings: [], checkins: [], concerns: [], pauses: [],
+    standingEvents: [], vouches: [], knownProgress: null, firstMeetings: [], safetyCheckins: [],
+    stewardNotes: [], isSteward: false, steward: null,
   };
 }
 
@@ -47,10 +50,27 @@ export async function loadCommunityState(): Promise<AppState> {
       supabase.from('member_preferences').select('urgent_opt_in').eq('user_id', userId).maybeSingle(),
       supabase.rpc('bank_project_summaries'),
     ]);
-    if (queries.some(result => result.error)) state.error = 'Some community information could not be loaded. Please refresh or contact your community facilitator.';
+    // Standing arrived in a later migration. If it is not applied yet, the
+    // dashboard hides standing instead of failing, and listings still save.
+    const standingQueries = await Promise.all([
+      supabase.rpc('bank_member_standing'),
+      supabase.from('gatherings').select('*').order('starts_at', { ascending: false }).limit(100),
+      supabase.from('gathering_checkins').select('*').order('checked_in_at', { ascending: false }).limit(2000),
+      supabase.from('concerns').select('*').order('created_at', { ascending: false }).limit(200),
+      supabase.from('standing_pauses').select('*').limit(500),
+      supabase.from('standing_events').select('*').order('created_at', { ascending: false }).limit(200),
+      supabase.from('vouches').select('id,voucher_id,member_id,sentence,basis,created_at').order('created_at', { ascending: false }).limit(2000),
+      supabase.rpc('bank_known_progress', { p_member: userId }).maybeSingle(),
+      supabase.from('exchange_first_meetings').select('*').limit(500),
+      supabase.from('exchange_safety_checkins').select('*').order('created_at', { ascending: false }).limit(500),
+      supabase.from('exchange_steward_notes').select('*').order('created_at', { ascending: false }).limit(500),
+    ]);
+    state.standingReady = !standingQueries[0].error;
+    if (queries.some(result => result.error) || (state.standingReady && standingQueries.some(result => result.error))) state.error = 'Some community information could not be loaded. Please refresh or contact your community facilitator.';
     const [members, account, offers, wants, exchanges, messages, ledger, notices, kudos, projects, contributions, requests, fund, roles, preferences, projectSummaries] = queries;
     const accountData = account.data as { balance_minutes: number; available_minutes: number; reserved_minutes: number } | null;
     const memberMap = new Map<string, MemberProfile>((members.data || []).map(member => [member.id, member]));
+    state.members = [...memberMap.values()];
     const ownProfile = memberMap.get(userId);
     if (ownProfile) state.profile = { ...ownProfile, time_balance: (accountData?.balance_minutes || 0) / 60 };
     else state.error = 'Your member profile could not be loaded. Please contact your community facilitator.';
@@ -75,6 +95,40 @@ export async function loadCommunityState(): Promise<AppState> {
     state.urgentOptIn = preferences.data?.urgent_opt_in || false;
     state.availableMinutes = accountData?.available_minutes || 0;
     state.reservedMinutes = accountData?.reserved_minutes || 0;
+    if (state.standingReady) {
+      const [standings, gatherings, checkins, concerns, pauses, events, vouches, progress, meetings, safety, notes] = standingQueries;
+      state.standings = (standings.data || []) as MemberStanding[];
+      state.gatherings = gatherings.data || [];
+      state.checkins = checkins.data || [];
+      state.concerns = concerns.data || [];
+      state.pauses = pauses.data || [];
+      state.standingEvents = events.data || [];
+      state.vouches = vouches.data || [];
+      state.knownProgress = (progress.data as KnownProgress | null) || null;
+      state.firstMeetings = meetings.data || [];
+      state.safetyCheckins = safety.data || [];
+      state.stewardNotes = notes.data || [];
+      const own = state.standings.find(item => item.user_id === userId);
+      state.isSteward = own?.level === 'steward' && !state.pauses.some(item => item.member_id === userId);
+      if (state.isSteward) {
+        const stewardQueries = await Promise.all([
+          supabase.from('concern_notes').select('*').order('created_at', { ascending: true }).limit(1000),
+          supabase.from('steward_nominations').select('*').limit(200),
+          supabase.rpc('bank_steward_vouches'),
+          supabase.rpc('bank_known_suggestions'),
+          supabase.rpc('bank_steward_safety_feed'),
+        ]);
+        if (stewardQueries.some(result => result.error)) state.error = 'Some steward information could not be loaded. Please refresh.';
+        const [concernNotes, nominations, vouchDetails, suggestions, feed] = stewardQueries;
+        state.steward = {
+          concernNotes: concernNotes.data || [],
+          nominations: nominations.data || [],
+          vouchDetails: (vouchDetails.data || []) as StewardData['vouchDetails'],
+          knownSuggestions: (suggestions.data || []) as StewardData['knownSuggestions'],
+          safetyFeed: (feed.data || []) as StewardData['safetyFeed'],
+        };
+      }
+    }
     return state;
   } catch {
     state.error = 'The community connection is temporarily unavailable. Please try again later.';
