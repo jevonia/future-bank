@@ -2,11 +2,13 @@
 
 New Future Bank is a community time bank built with Next.js 16 and Supabase. Members share offers and requests, coordinate exchanges, confirm completed help, and track credits in integer minutes. One hour equals one time credit; a new account receives a recorded two-hour welcome grant.
 
-The public page can render without Supabase credentials. The bank schema is live and the updated application is deployed at [newfuturebank.com](https://newfuturebank.com/). Hosted auth and community QA have passed for synthetic members, including confirmation and recovery, private exchange access, reservations, settlement, donations, projects, and urgent notifications. Synthetic QA accounts and records have been cleaned up and the original fund baseline restored. The real member setup email was accepted by the sender; inbox delivery and account setup are unverified. The release was merged through [PR #1](https://github.com/jevonia/future-bank/pull/1) into main at `bf80508`; [main CI run 38629341354](https://github.com/jevonia/future-bank/actions/runs/38629341354) passed; see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the exact status.
+Members can also see each other's community standing (New, Introduced, Known, Steward), meet at gatherings where stewards check them in, vouch for each other, raise private concerns with stewards, and use a first-meeting safety card on exchanges. The public explainer is at `/standing`.
+
+The public page can render without Supabase credentials. The bank and standing schemas are live and the application is deployed at [newfuturebank.com](https://newfuturebank.com/) from main. Hosted QA has passed for synthetic members across Auth, the core community flows, and standing. Synthetic QA accounts and records have been cleaned up. **Start with [HANDOFF.md](HANDOFF.md)** for what is live and what to do next; [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) has the exact verification record.
 
 ## Design and public page
 
-The public page, colors, fonts, illustrations, historical photos, writing rules, and the sources behind every statistic are documented in [docs/DESIGN.md](docs/DESIGN.md). The most recent public page refresh was merged through [PR #2](https://github.com/jevonia/future-bank/pull/2); see [HANDOFF.md](HANDOFF.md).
+The public page, colors, fonts, illustrations, historical photos, writing rules, standing words, and the sources behind every statistic are documented in [docs/DESIGN.md](docs/DESIGN.md). The reasoning behind standing and safety is in [docs/STANDING_AND_SAFETY_PLAN.md](docs/STANDING_AND_SAFETY_PLAN.md).
 
 ## Requirements and local setup
 
@@ -42,7 +44,7 @@ Do not put a service-role key, database password, access token, or other privile
 | `npm run dev` | Start Next.js development mode |
 | `npm run lint` | Lint `src` and `tests` with ESLint |
 | `npm run typecheck` | Run TypeScript without emitting files |
-| `npm run test` | Run the Node/tsx helper tests and PGlite database integration suite |
+| `npm run test` | Run the Node/tsx helper tests and the PGlite bank and standing integration suites |
 | `npm run test:concurrency` | Run PostgreSQL lock/concurrency checks against an explicitly disposable database |
 | `npm run build` | Create a production build |
 | `npm run start` | Serve the production build locally |
@@ -67,7 +69,7 @@ The signup database trigger creates the profile and welcome-ledger entry when th
 
 The recorded Vercel target is the existing **`future-bank`** project in scope **`novas-projects-c5420b8e`**, project ID **`prj_O0wo6gqYzDOLQ6X3Ramg4TrgU5B9`**. There is also a separate `future-bank-org` project; do not select it. The local Vercel CLI is linked to the exact target and the public environment was retrieved into ignored `.env.local`; values are not stored in this documentation. The associated Supabase project reference is `aitnqoqdkhvlgxuujowb` in TheVillage organization. The restored project responds to database and Auth API requests. The domain currently associated with this product is [newfuturebank.com](https://newfuturebank.com/).
 
-The exact Vercel project, production branch (`main`), Node.js 22 runtime, and existing domain association have been verified. The production deployment is READY at deployment `dpl_5KN846JAkvzBDvtAqZnga5FUYPxe`; production smoke checks passed, including provider discovery, the development-only fixture's 404 response, anonymous API denial, and cross-origin mutation rejection. Both bank migrations were applied to the connected Supabase project and postflight checks passed. At that check, the four existing accounts and opening ledger amounts were zero. Hosted synthetic QA data has since been removed and the original fund baseline restored. The scoped data/schema snapshot was restored into native PostgreSQL, but a complete platform backup including Auth credentials and Storage has not been verified. Commit `d864c6f` is pushed and its CI run passed; the release is merged into main through [PR #1](https://github.com/jevonia/future-bank/pull/1), with [main CI run 38629341354](https://github.com/jevonia/future-bank/actions/runs/38629341354) passing. The setup email was accepted by the sender, but inbox delivery and member setup are unverified. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for exact verification and remaining work.
+The exact Vercel project, production branch (`main`), Node.js 22 runtime, and existing domain association have been verified. Production builds from main; as of October 15, 2026 it runs `8fd3f30` and the production smoke checks pass (provider discovery, the development-only fixture's 404 response, anonymous API denial, and cross-origin mutation rejection). All four migrations (bank on October 14, standing and safety on October 15) are applied to the connected Supabase project and their postflight checks passed. Supabase lists no platform backups for the project; only scoped private snapshots exist, and they do not cover Auth credentials or Storage. The real member setup email was accepted by the sender, but inbox delivery and member setup are unverified. See [HANDOFF.md](HANDOFF.md) for next steps and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for exact verification.
 
 ## Historical documents
 

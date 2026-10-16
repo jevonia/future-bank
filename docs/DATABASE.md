@@ -1,6 +1,6 @@
 # New Future Bank database
 
-The authoritative schema is `supabase/migrations/20261014000100_bank_schema.sql` followed by `20261014000200_bank_rpcs.sql`. Both were applied to the live Supabase project on October 14, 2026 in one reviewed, guarded transaction. Supabase's `supabase_migrations.schema_migrations` records versions `20261014000100` and `20261014000200`. A 14-query live postflight passed: original rows and Auth references were preserved, accounts and opening ledger entries reconcile, RLS and grants are narrow, and the bank functions have pinned empty search paths. Do not reapply these files or paste the older root-level database Markdown examples into Supabase; the older examples grant direct balance edits.
+The authoritative schema is `supabase/migrations/20261014000100_bank_schema.sql` followed by `20261014000200_bank_rpcs.sql`. Both were applied to the live Supabase project on October 14, 2026 in one reviewed, guarded transaction. The standing and safety migrations `20261015000100_standing.sql` and `20261015000200_vouches_and_safety.sql` followed on October 15, 2026 (see below), so `supabase_migrations.schema_migrations` now records all four versions. A 14-query live postflight passed: original rows and Auth references were preserved, accounts and opening ledger entries reconcile, RLS and grants are narrow, and the bank functions have pinned empty search paths. Do not reapply these files or paste the older root-level database Markdown examples into Supabase; the older examples grant direct balance edits.
 
 Before that live application, the original public tables and relevant Auth references were captured in a private scoped rollback snapshot, restored on disposable PostgreSQL, and used to test the exact migration request. That snapshot covers the objects and records affected by this migration; it is **not** a complete Supabase Auth, Storage, or disaster-recovery backup. The live postflight and later read-only audit are saved privately in `.private/` and are not committed.
 
@@ -54,7 +54,10 @@ The in-memory integration test requires Node and `@electric-sql/pglite`:
 
 ```bash
 node supabase/tests/bank.integration.mjs
+node supabase/tests/standing.integration.mjs
 ```
+
+The standing suite applies all four migrations and checks levels, gatherings, concerns, pauses, nominations, vouches, the safety card, and their privacy rules.
 
 The test builds an old-schema fixture, applies both migrations, and checks opening and welcome entries, column grants, RLS, forged writes, participant privacy, reservation-aware acceptance and donation, cancellation release, two-party settlement, duplicate confirmation, donation retries, facilitator approval, project contributions, urgent opt-in, and public summary. For a real Supabase preview database, additionally test two simultaneous acceptances against one payer and two simultaneous confirmations for one exchange. The expected result is no over-reservation, one ledger pair per completed exchange, and no negative account balance. Supabase CLI can apply migrations with `supabase db reset` only to a disposable local project; never use that command against production.
 
