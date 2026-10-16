@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured, isValidUsername, normalizeUsername } from '@/lib/auth-config';
@@ -182,10 +183,14 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             <button type="submit" disabled={loading} className="w-full rounded-lg bg-indigo-700 px-5 py-3 font-semibold text-white hover:bg-indigo-800 disabled:cursor-wait disabled:opacity-60">
               {loading ? 'Please wait…' : mode === 'sign-up' ? 'Create account' : mode === 'forgot-password' ? 'Send reset link' : 'Sign in'}
             </button>
+            {mode === 'sign-up' && <p className="text-center text-sm text-slate-600">
+              By creating an account you agree to our <Link href="/privacy#terms" target="_blank" rel="noreferrer" className="font-medium text-indigo-700 underline">terms and privacy policy<span className="sr-only"> (opens in a new tab)</span></Link>.
+            </p>}
           </form>
           {mode === 'sign-in' && <div className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm">
             <button type="button" onClick={() => { setMode('forgot-password'); clearMessages(); }} className="font-medium text-indigo-700 underline">Forgot password?</button>
             {googleEnabled && <button type="button" onClick={handleGoogleSignIn} disabled={loading} className="font-medium text-indigo-700 underline">Continue with Google</button>}
+            <Link href="/privacy" target="_blank" rel="noreferrer" className="font-medium text-indigo-700 underline">Privacy and terms<span className="sr-only"> (opens in a new tab)</span></Link>
           </div>}
           <div className="mt-6 border-t border-slate-200 pt-4 text-center text-sm text-slate-600">
             {mode === 'forgot-password' ? <button type="button" onClick={() => { setMode('sign-in'); clearMessages(); }} className="font-semibold text-indigo-700">Back to sign in</button> : <button type="button" onClick={() => { setMode(mode === 'sign-up' ? 'sign-in' : 'sign-up'); clearMessages(); }} className="font-semibold text-indigo-700">{mode === 'sign-up' ? 'Already have an account? Sign in' : 'New here? Create an account'}</button>}
