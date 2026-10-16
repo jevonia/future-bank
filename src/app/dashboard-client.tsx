@@ -179,20 +179,20 @@ export default function DashboardClient({
     payload: Record<string, unknown>,
     key: string = action,
   ) {
-    if (qaReadOnly) return false;
+    if (qaReadOnly) return null;
     setBusy(key);
     setActionError("");
     try {
-      await mutateCommunity(action, payload);
+      const result = await mutateCommunity(action, payload);
       router.refresh();
-      return true;
+      return result;
     } catch (reason) {
       setActionError(
         reason instanceof Error
           ? reason.message
           : "That action could not be completed. Please try again.",
       );
-      return false;
+      return null;
     } finally {
       setBusy("");
     }

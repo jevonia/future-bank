@@ -2,7 +2,7 @@
 
 import type { Offer, Want } from "@/lib/types";
 import { CATEGORIES, KUDOS_LABELS } from "@/lib/types";
-import type { CommunityAction } from "@/lib/community-api";
+import type { CommunityAct } from "@/lib/community-api";
 import { Dialog } from "@/components/ui/Dialog";
 
 type ListingIntent = { kind: "offer" | "want"; item: Offer | Want };
@@ -14,11 +14,7 @@ type DialogState =
   | "contribute"
   | "kudos"
   | "exchange";
-type Action = (
-  action: CommunityAction,
-  payload: Record<string, unknown>,
-  key?: string,
-) => Promise<boolean>;
+type Action = CommunityAct;
 
 function newRequestId() {
   return crypto.randomUUID();

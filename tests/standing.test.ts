@@ -6,7 +6,7 @@ import {
   knownChecklist, meetsMinimum, standingLines,
 } from '../src/lib/standing';
 import { buildStandingIndex } from '../src/lib/standing-view';
-import { isFirstMeeting, tellAFriendText } from '../src/lib/safety';
+import { isFirstMeeting, noStewardReached, tellAFriendText } from '../src/lib/safety';
 import { WANT_CRITERIA } from '../src/lib/types';
 
 const read = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -101,6 +101,13 @@ describe('first-meeting card', () => {
       tellAFriendText({ otherName: 'Marcus', title: 'Brake pads', place: '', checkIn: 'By 4 p.m.' }),
       'I\'m meeting Marcus from New Future Bank for "Brake pads". Where: not decided yet. I\'ll check in with you: By 4 p.m.. If you don\'t hear from me, please check on me.',
     );
+  });  it('flags a call request or concern that reached no steward', () => {
+    assert.equal(noStewardReached({ checkin_id: 4, stewards_notified: 0 }), true);
+    assert.equal(noStewardReached([{ concern_id: 9, stewards_notified: 0 }]), true);
+    assert.equal(noStewardReached({ checkin_id: 4, stewards_notified: 2 }), false);
+    assert.equal(noStewardReached({ checkin_id: 4, stewards_notified: null }), false, 'a fine check-in');
+    assert.equal(noStewardReached(12), false, 'results from before the migration');
+    assert.equal(noStewardReached(null), false);
   });
 });
 
@@ -112,6 +119,7 @@ describe('standing copy follows the writing guide and the false-confidence rule'
     read('src/components/standing/StandingDialogs.tsx'),
     read('src/components/standing/StandingPanel.tsx'),
     read('src/components/standing/SafetyCard.tsx'),
+    read('src/components/standing/NoStewardReached.tsx'),
   ].join('\n');
   it('has no em dashes', () => assert.equal(copy.includes('—'), false));
   it('uses the words, never the plan letters', () => {
