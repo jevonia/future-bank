@@ -103,9 +103,10 @@ Background on machine-writing patterns: [Wikipedia: Signs of AI writing](https:/
 7. Four story cards: Denise (groceries), Marcus and Earl (car repair), Rosa (child care), Tyler (loneliness). The people are made up and the page says so. The prices and statistics are real.
 8. "We've done this before": mutual aid history, Edgar Cahn, and what we believe.
 9. Our agreements (six ground rules).
-10. Questions.
-11. Closing invitation. It shows live member counts once there are at least 12 members (`SHOW_STATS_AT_MEMBERS`); before that it asks for founding members.
-12. Sources, then footer.
+10. "Meeting a neighbor for the first time": five habits for a first meeting and how to reach the coordinator. The signed-in dashboard's first-steps checklist (`src/components/dashboard/GettingStarted.tsx`) repeats a short version, since the dashboard replaces the public page once someone signs in.
+11. Questions.
+12. Closing invitation. It shows live member counts once there are at least 12 members (`SHOW_STATS_AT_MEMBERS`); before that it asks for founding members.
+13. Sources, then footer.
 
 Besides the public page, `/privacy` (`src/app/privacy/page.tsx`) holds the privacy policy and the terms on one page, and `/terms` redirects to the terms section. It is linked from the public page footer and from the sign-up and sign-in forms. Every sentence on it describes what the code does today, so update it before shipping anything that keeps new information about members. It now covers standing, gathering check-ins, vouches, concerns, pauses, steward nominations, and the first-meeting card. A lawyer or legal clinic should read it once before the pilot grows.
 

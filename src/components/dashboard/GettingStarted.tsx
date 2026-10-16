@@ -1,6 +1,16 @@
 "use client";
 
 import { AskCardArt, MugsArt, OfferCardArt } from "@/components/illustrations";
+import { contactEmail } from "@/lib/site";
+
+// Short version of the public "Meeting a neighbor for the first time" guide.
+const firstMeeting = [
+  "Meet in a public place the first time.",
+  "Tell a friend where you'll be and when you'll check in.",
+  "Bring someone along if you want.",
+  "Agree on the job and the hours before you start.",
+  "You can say no or cancel at any time. You don't owe anyone a reason.",
+];
 
 /** First-run checklist; disappears once a member has listed and exchanged. */
 export function GettingStarted({
@@ -102,6 +112,39 @@ export function GettingStarted({
           </li>
         ))}
       </ol>
+      <div className="mt-5 rounded-2xl border border-sun bg-[#ffffff] p-4 sm:p-5">
+        <h3 className="font-semibold leading-snug">
+          Before you meet a neighbor for the first time
+        </h3>
+        <ul className="mt-2 grid gap-1.5 text-sm leading-6 text-slate-600 sm:grid-cols-2">
+          {firstMeeting.map((line) => (
+            <li key={line} className="flex gap-2">
+              <span
+                aria-hidden="true"
+                className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-700"
+              />
+              {line}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          We check emails, not backgrounds. If something felt wrong, tell the
+          coordinator
+          {contactEmail ? (
+            <>
+              {" "}
+              at{" "}
+              <a
+                href={`mailto:${contactEmail}`}
+                className="font-bold text-violet-700 underline underline-offset-2"
+              >
+                {contactEmail}
+              </a>
+            </>
+          ) : null}
+          . They will write back, and nothing you say is posted on the site.
+        </p>
+      </div>
     </section>
   );
 }
