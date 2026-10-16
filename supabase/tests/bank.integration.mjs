@@ -94,7 +94,8 @@ try {
   await run(`insert into public.transactions(exchange_id,amount) values(1,1.50)`);
   await db.exec(await readFile(path.join(base,'inspect/preflight.sql'),'utf8'));
   for (const migration of ['migrations/20261014000100_bank_schema.sql','migrations/20261014000200_bank_rpcs.sql',
-    'migrations/20261015000100_standing.sql','migrations/20261015000200_vouches_and_safety.sql']) {
+    'migrations/20261015000100_standing.sql','migrations/20261015000200_vouches_and_safety.sql',
+    'migrations/20261016000100_steward_notice_reach.sql']) {
     await db.exec(await readFile(path.join(base,migration),'utf8'));
   }
   await db.exec(await readFile(path.join(base,'inspect/preflight.sql'),'utf8'));

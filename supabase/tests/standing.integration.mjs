@@ -43,6 +43,7 @@ const migrations = [
   'migrations/20261014000200_bank_rpcs.sql',
   'migrations/20261015000100_standing.sql',
   'migrations/20261015000200_vouches_and_safety.sql',
+  'migrations/20261016000100_steward_notice_reach.sql',
 ];
 
 try {
@@ -183,8 +184,10 @@ try {
   assert.equal(await count(`select count(*) from public.standing_events where member_id=$1 and kind in ('pause','unpause')`, [ids.rosa]), 2);
 
   // Concerns go to stewards, never to the person they are about.
-  const concern = await as(ids.denise, () => scalar(
-    `select public.bank_raise_concern($1,null,'She arrived an hour late and left before we finished.',false)`, [ids.rosa]));
+  const raised = await as(ids.denise, () => one(
+    `select * from public.bank_raise_concern($1,null,'She arrived an hour late and left before we finished.',false)`, [ids.rosa]));
+  const concern = raised.concern_id;
+  assert.equal(raised.stewards_notified, 1);
   assert.equal(await notices(ids.nova, 'A private concern needs a steward'), 1);
   assert.equal(await notices(ids.rosa, 'A private concern needs a steward'), 0);
   await as(ids.denise, async () => {
@@ -213,9 +216,37 @@ try {
     assert.equal(own.unresolved_concerns, null, 'members never learn of concerns from progress');
     await expectDenied(() => run('select * from public.bank_known_progress($1)', [ids.marcus]), 'another member progress');
   });
-  // A concern about a steward is hidden from that steward.
-  const aboutNova = await as(ids.tyler, () => scalar(
-    `select public.bank_raise_concern($1,null,'He was short with me at the repair day.',true)`, [ids.nova]));
+  // A concern about nobody in particular still reaches the stewards. A NULL in
+  // the exclude list used to make `<> all` NULL for every steward.
+  const general = await as(ids.earl, () => one(
+    `select * from public.bank_raise_concern(null,null,'Someone left the hall unlocked after the repair day.',true)`));
+  assert.equal(general.stewards_notified, 1);
+  assert.equal(await notices(ids.nova, 'A private concern needs a steward'), 2);
+  await as(ids.nova, async () => assert.equal(await count('select count(*) from public.concerns where id=$1', [general.concern_id]), 1));
+  await as(ids.nova, () => run(`select public.bank_respond_concern($1,'Thank you. I locked it this morning.',null,true)`, [general.concern_id]));
+
+  // While Nova is the only steward, a "call me" during an exchange with Nova
+  // reaches nobody. The check-in is kept and the member is told.
+  const novaOffer = await as(ids.nova, () => scalar(`select public.bank_save_listing('offer',null,'Hem a pair of trousers','I have a sewing machine','Skills','{}')`));
+  const withSteward = await as(ids.marcus, () => scalar(`select public.bank_request_exchange('offer',$1,30,null)`, [novaOffer]));
+  await as(ids.nova, () => run(`select public.bank_exchange_action($1,'accept')`, [withSteward]));
+  const unreached = await as(ids.marcus, () => one(`select * from public.bank_safety_checkin($1,'call_me')`, [withSteward]));
+  assert.ok(unreached.checkin_id);
+  assert.equal(unreached.stewards_notified, 0, 'the only steward is in the exchange');
+  assert.equal(await notices(ids.nova, 'A member asked a steward to call them'), 0, 'the steward in the exchange is never told');
+  await as(ids.marcus, async () => assert.equal(await count('select count(*) from public.exchange_safety_checkins where exchange_id=$1', [withSteward]), 1));
+  await as(ids.nova, async () => assert.equal(await count('select count(*) from public.bank_steward_safety_feed()'), 0));
+  const fine = await as(ids.marcus, () => one(`select * from public.bank_safety_checkin($1,'fine')`, [withSteward]));
+  assert.equal(fine.stewards_notified, null, 'a fine check-in notifies nobody and reports nothing');
+  await as(ids.marcus, () => run(`select public.bank_exchange_action($1,'cancel')`, [withSteward]));
+
+  // A concern about a steward is hidden from that steward. When that steward
+  // is the only one, nobody is told, and the member hears that.
+  const aboutNovaRaised = await as(ids.tyler, () => one(
+    `select * from public.bank_raise_concern($1,null,'He was short with me at the repair day.',true)`, [ids.nova]));
+  const aboutNova = aboutNovaRaised.concern_id;
+  assert.equal(aboutNovaRaised.stewards_notified, 0, 'the only steward is the subject');
+  assert.equal(await notices(ids.nova, 'A private concern needs a steward'), 2, 'the subject is never told');
   await as(ids.nova, async () => {
     assert.equal(await count('select count(*) from public.concerns where id=$1', [aboutNova]), 0);
     await expectDenied(() => run(`select public.bank_respond_concern($1,'No',null,true)`, [aboutNova]), 'steward answers own concern');
@@ -323,11 +354,12 @@ try {
   await as(ids.denise, async () => assert.equal(await count('select count(*) from public.exchange_first_meetings'), 0));
   await as(ids.tyler, async () => {
     await expectDenied(() => run(`select public.bank_safety_checkin($1,'panic')`, [meeting]), 'bad check-in');
-    await run(`select public.bank_safety_checkin($1,'call_me')`, [meeting]);
+    const reached = await one(`select * from public.bank_safety_checkin($1,'call_me')`, [meeting]);
+    assert.equal(reached.stewards_notified, 3, 'Nova, Rosa, and Earl are outside this exchange');
   });
   assert.equal(await notices(ids.nova, 'A member asked a steward to call them'), 1);
   assert.equal(await notices(ids.marcus, 'A member asked a steward to call them'), 0, 'the other person is never told');
-  await as(ids.marcus, async () => assert.equal(await count('select count(*) from public.exchange_safety_checkins'), 0));
+  await as(ids.marcus, async () => assert.equal(await count('select count(*) from public.exchange_safety_checkins where exchange_id=$1', [meeting]), 0));
   await as(ids.denise, () => expectDenied(() => run(`select public.bank_safety_checkin($1,'fine')`, [meeting]), 'outsider check-in'));
   await as(ids.marcus, () => run(`select public.bank_exchange_action($1,'confirm')`, [meeting]));
   await as(ids.marcus, () => run(`select public.bank_exchange_steward_note($1,'He was kind. Nothing to report.')`, [meeting]));

@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { CommunityAction } from "@/lib/community-api";
+import type { CommunityAct } from "@/lib/community-api";
 import type { AppState, Exchange } from "@/lib/types";
 import { COMMUNITY_TIME_ZONE } from "@/lib/standing";
-import { isFirstMeeting, tellAFriendText } from "@/lib/safety";
+import { isFirstMeeting, noStewardReached, tellAFriendText } from "@/lib/safety";
+import { NoStewardReached } from "./NoStewardReached";
 
 const small = "rounded-full px-3.5 py-2 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-55";
 
@@ -26,7 +27,7 @@ export function SafetyCard({
   currentUserId: string;
   otherName: string;
   state: Pick<AppState, "firstMeetings" | "safetyCheckins" | "stewardNotes">;
-  act: (action: CommunityAction, payload: Record<string, unknown>, key?: string) => Promise<boolean>;
+  act: CommunityAct;
   busy: string;
 }) {
   const mine = state.firstMeetings.find(
@@ -43,6 +44,7 @@ export function SafetyCard({
   );
   const [note, setNote] = useState(savedNote?.body ?? "");
   const [copied, setCopied] = useState("");
+  const [unreached, setUnreached] = useState(false);
   const lastCheckin = state.safetyCheckins.find(
     (item) => item.exchange_id === exchange.id && item.member_id === currentUserId,
   );
@@ -151,7 +153,10 @@ export function SafetyCard({
             <button
               className={`${small} bg-amber-100 text-amber-950`}
               disabled={!!busy}
-              onClick={() => act("safety_checkin", { exchange_id: exchange.id, kind: "call_me" }, "checkin")}
+              onClick={async () => {
+                const result = await act("safety_checkin", { exchange_id: exchange.id, kind: "call_me" }, "checkin");
+                if (result) setUnreached(noStewardReached(result.data));
+              }}
             >
               Please have a steward call me
             </button>
@@ -162,6 +167,11 @@ export function SafetyCard({
               {new Date(lastCheckin.created_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: COMMUNITY_TIME_ZONE })}
               {lastCheckin.kind === "call_me" ? " and asked for a call." : "."}
             </p>
+          )}
+          {unreached && (
+            <div className="mt-2">
+              <NoStewardReached kind="call" />
+            </div>
           )}
           <p className="mt-2 text-xs leading-5 text-slate-600">
             The call request is a notice to the stewards inside the site. They

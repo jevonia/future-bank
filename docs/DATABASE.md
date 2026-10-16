@@ -48,6 +48,10 @@ values ('REPLACE_WITH_CONFIRMED_USER_UUID','level','steward','Founding steward n
 
 For an offer listing, the caller requests help and the owner is the provider. For a want listing, the caller offers help and the owner is the requester. `initiator_id` records who sent the request. The invited member accepts or declines; both members confirm completion. This resolves the ambiguity in the initial API contract while keeping credit flow from requester to provider.
 
+## Steward notice reach (not yet applied)
+
+`20261016000100_steward_notice_reach.sql` fixes finding D1 of the October 16 agent review. It is tested in PGlite and has **not** been applied to the hosted project; apply it with the same guarded process as the standing migrations (read-only preflight, private snapshot, rehearsed rollback, one transaction, postflight). `bank_notify_stewards` now drops NULLs from its exclude list (a NULL made `<> all` NULL for every steward, so a concern about no named member reached nobody) and returns how many stewards it notified. `bank_safety_checkin` and `bank_raise_concern` keep their input signatures but now return one row: `(checkin_id, stewards_notified)` and `(concern_id, stewards_notified)`. The row is still saved when no steward could be told, for example a "call me" during an exchange with the only steward, or a concern about the only steward. Then `stewards_notified` is 0 and the dashboard tells the member that no steward could be reached and points them to the coordinator contact. A `fine` check-in returns NULL for the count. Older dashboard code ignores the result, so the code and the migration can ship in either order.
+
 ## Local verification
 
 The in-memory integration test requires Node and `@electric-sql/pglite`:
@@ -57,7 +61,7 @@ node supabase/tests/bank.integration.mjs
 node supabase/tests/standing.integration.mjs
 ```
 
-The standing suite applies all four migrations and checks levels, gatherings, concerns, pauses, nominations, vouches, the safety card, and their privacy rules.
+The standing suite applies all five migrations and checks levels, gatherings, concerns, pauses, nominations, vouches, the safety card, and their privacy rules.
 
 The test builds an old-schema fixture, applies both migrations, and checks opening and welcome entries, column grants, RLS, forged writes, participant privacy, reservation-aware acceptance and donation, cancellation release, two-party settlement, duplicate confirmation, donation retries, facilitator approval, project contributions, urgent opt-in, and public summary. For a real Supabase preview database, additionally test two simultaneous acceptances against one payer and two simultaneous confirmations for one exchange. The expected result is no over-reservation, one ledger pair per completed exchange, and no negative account balance. Supabase CLI can apply migrations with `supabase db reset` only to a disposable local project; never use that command against production.
 

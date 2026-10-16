@@ -12,3 +12,6 @@ export async function mutateCommunity(action: CommunityAction, payload: Record<s
   if (!response.ok) throw new Error(result.error || 'Unable to save your changes. Please try again.');
   return result;
 }
+
+/** The dashboard's act(): the RPC result when it succeeded, otherwise null. */
+export type CommunityAct = (action: CommunityAction, payload: Record<string, unknown>, key?: string) => Promise<{ data: unknown } | null>;

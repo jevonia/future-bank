@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Dialog } from "@/components/ui/Dialog";
-import type { CommunityAction } from "@/lib/community-api";
+import type { CommunityAct, CommunityAction } from "@/lib/community-api";
 import type { AppState } from "@/lib/types";
 import {
   HOME_ANSWER_LABELS,
@@ -14,7 +14,9 @@ import {
   shortDate,
 } from "@/lib/standing";
 import type { StandingIndex } from "@/lib/standing-view";
+import { noStewardReached } from "@/lib/safety";
 import { StandingBadge } from "./StandingBadge";
+import { NoStewardReached } from "./NoStewardReached";
 
 export type StewardAction =
   | "introduced"
@@ -34,11 +36,7 @@ export type StandingDialog =
   | { kind: "steward"; memberId: string; action: StewardAction; concernId?: number }
   | { kind: "respond"; concernId: number };
 
-type Act = (
-  action: CommunityAction,
-  payload: Record<string, unknown>,
-  key?: string,
-) => Promise<boolean>;
+type Act = CommunityAct;
 
 interface Props {
   dialog: StandingDialog | null;
@@ -257,6 +255,7 @@ function ConcernDialog({
   const [body, setBody] = useState("");
   const [shareName, setShareName] = useState<boolean | null>(null);
   const [error, setError] = useState("");
+  const [unreached, setUnreached] = useState(false);
   const exchange = state.exchanges.find((item) => item.id === exchangeId);
   const otherId =
     aboutId ||
@@ -266,6 +265,21 @@ function ConcernDialog({
         : exchange.provider_id
       : null);
   const otherName = otherId ? index.name(otherId) : "the other member";
+
+  if (unreached) {
+    return (
+      <Dialog isOpen onClose={() => setDialog(null)} title="Tell a steward about a concern">
+        <div className="space-y-4">
+          <NoStewardReached kind="concern" />
+          <div className="flex justify-end pt-2">
+            <button className="button-primary" type="button" onClick={() => setDialog(null)}>
+              Close
+            </button>
+          </div>
+        </div>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog
@@ -288,7 +302,9 @@ function ConcernDialog({
             { about_id: aboutId, exchange_id: exchangeId, body: body.trim(), share_name: shareName },
             "concern",
           );
-          if (done) setDialog(null);
+          if (!done) return;
+          if (noStewardReached(done.data)) setUnreached(true);
+          else setDialog(null);
         }}
       >
         <p className="text-sm text-slate-700">
