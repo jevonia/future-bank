@@ -106,30 +106,40 @@ export const LEVEL_INFO: Record<StandingLevel, LevelInfo> = {
 
 /** Short, illustrated introduction; full requirements stay in LEVEL_INFO. */
 export const STANDING_STORIES: Record<StandingLevel, {
+  speaker: string;
+  people: { x: number; role: string }[];
   dialogue: string;
   title: string;
   copy: string;
   reminder: string;
 }> = {
   new: {
+    speaker: "A new member",
+    people: [{ x: 171, role: "New member" }],
     dialogue: "I can cook. Who needs a hand?",
     title: "Start with what you can share",
     copy: "Confirm your email, post an offer, or ask for help. You can trade hours from day one.",
     reminder: "Everyone starts here. Nobody from the bank has met you yet.",
   },
   introduced: {
+    speaker: "The steward",
+    people: [{ x: 86, role: "New member" }, { x: 233, role: "Steward" }],
     dialogue: "Come on in. Let’s meet the neighbors!",
     title: "Meet a steward",
     copy: "Come to a gathering and get checked in. If getting there is hard, ask about meeting one to one.",
     reminder: "A steward has met you. They haven’t checked your background.",
   },
   known: {
+    speaker: "A Known neighbor",
+    people: [{ x: 86, role: "Known neighbor" }, { x: 233, role: "Our neighbor" }],
     dialogue: "We’ve helped each other. I’ll vouch for you.",
     title: "Keep showing up for each other",
     copy: "Trade hours with neighbors and get two vouches. A steward checks the full requirements before confirming Known.",
     reminder: "People have worked with you. That still isn’t a safety promise.",
   },
   steward: {
+    speaker: "Our neighbor, now a steward",
+    people: [{ x: 88, role: "Now a steward" }, { x: 239, role: "New member" }],
     dialogue: "Welcome! Let’s sit down and talk.",
     title: "Help welcome the next neighbor",
     copy: "If you choose this role, two stewards nominate you. You agree to help welcome people and listen to concerns.",

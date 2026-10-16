@@ -1,6 +1,15 @@
 import { palette as p } from "@/components/illustrations";
 import type { StandingLevel } from "@/lib/standing";
 
+// Horizontal positions use the illustration's coordinates, so bubble tails
+// and role labels stay aligned with the people at every screen width.
+export const SCENE_SPEAKERS: Record<StandingLevel, { x: number; tailHeight: number }> = {
+  new: { x: 171, tailHeight: 14 },
+  introduced: { x: 233, tailHeight: 24 },
+  known: { x: 86, tailHeight: 24 },
+  steward: { x: 88, tailHeight: 24 },
+};
+
 // The same neighbor in the red shirt appears throughout the comic. These
 // decorative vectors accompany real HTML dialogue and captions.
 function Neighbor({ x, y, kind = "neighbor", flip = false }: {
@@ -62,7 +71,7 @@ export function StandingScene({ level }: { level: StandingLevel }) {
           <circle cx="79" cy="52" r="11" fill={p.sun} />
           <path d="M30 117l20-32 18 18 28-32v54H30Z" fill={p.mint} />
           <path d="M128 199h132" stroke={p.ink} strokeWidth="3" opacity=".15" strokeLinecap="round" />
-          <Neighbor x={171} y={51} />
+          <Neighbor x={SCENE_SPEAKERS.new.x} y={51} />
           <rect x="216" y="86" width="24" height="38" rx="5" fill={p.ink} transform="rotate(-14 228 105)" />
           <path d="m223 103 4 4 7-10" fill="none" stroke={p.sun} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M112 145h151v12H112Z" fill={p.sun} />
@@ -80,10 +89,10 @@ export function StandingScene({ level }: { level: StandingLevel }) {
           <path d="m22 28 41 15 41-15m113 0 41 15 41-15" fill="none" stroke={p.ink} strokeWidth="1.5" opacity=".3" />
           <path d="m32 32 15 6-10 13Zm42 6 15-6-5 19Zm153-6 15 6-10 13Zm43 6 15-6-5 19Z" fill={p.tomato} />
           <Neighbor x={86} y={59} />
-          <Neighbor x={233} y={59} kind="steward" flip />
+          <Neighbor x={SCENE_SPEAKERS.introduced.x} y={59} kind="steward" flip />
           <path d="M141 108q17 12 35 0" fill="none" stroke={p.skin[0]} strokeWidth="9" strokeLinecap="round" />
           <rect x="205" y="100" width="29" height="36" rx="4" fill={p.paper} transform="rotate(8 219 118)" />
-          <path d="m213 113 4 4 8-9m-13 19h12" fill="none" stroke={p.cobalt} strokeWidth="2" strokeLinecap="round" />
+          <path d="M213 110h13m-13 7h13m-13 7h9" fill="none" stroke={p.cobalt} strokeWidth="2" strokeLinecap="round" />
           <Plant x={292} y={185} />
         </>
       )}
@@ -93,22 +102,20 @@ export function StandingScene({ level }: { level: StandingLevel }) {
           <rect x="26" y="34" width="28" height="21" rx="3" fill={p.sun} />
           <rect x="62" y="34" width="33" height="33" rx="3" fill={p.sky} />
           <path d="M27 65h23m-23 9h44" stroke={p.ink} strokeWidth="3" opacity=".18" strokeLinecap="round" />
-          <Neighbor x={86} y={60} kind="elder" />
+          <Neighbor x={SCENE_SPEAKERS.known.x} y={60} kind="elder" />
           <Neighbor x={233} y={60} flip />
           <path d="M136 111q22 12 40 0" fill="none" stroke={p.skin[3]} strokeWidth="8" strokeLinecap="round" />
           <rect x="133" y="145" width="53" height="33" rx="3" fill={p.sun} />
           <path d="M133 154h53m-34-9v33m15-33v33" stroke={p.paper} strokeWidth="2" />
           <path d="M119 178h83v9h-83m10 9v18m63-18v18" stroke={p.ink} strokeWidth="4" strokeLinecap="round" />
           <path d="M160 143v-19m0 10q-18-1-17-14 16-1 17 14m0-4q0-18 17-19 0 18-17 19" fill={p.leaf} />
-          <circle cx="270" cy="33" r="21" fill={p.paper} />
-          <path d="m260 33 7 7 13-15" fill="none" stroke={p.leafDeep} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
         </>
       )}
       {level === "steward" && (
         <>
           <rect x="25" y="25" width="79" height="63" rx="5" fill={p.paper} />
           <path d="M37 41h50m-50 12h37m-37 12h45" stroke={p.cobalt} strokeWidth="4" strokeLinecap="round" opacity=".4" />
-          <Neighbor x={88} y={59} />
+          <Neighbor x={SCENE_SPEAKERS.steward.x} y={59} />
           <Neighbor x={239} y={59} kind="newcomer" flip />
           <rect x="68" y="100" width="30" height="14" rx="3" fill={p.paper} />
           <path d="M76 107h14" stroke={p.tomatoDeep} strokeWidth="2" strokeLinecap="round" />
