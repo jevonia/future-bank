@@ -6,7 +6,7 @@ import {
   STANDING_STORIES,
   type StandingLevel,
 } from "@/lib/standing";
-import { StandingScene } from "./StandingScenes";
+import { SCENE_SPEAKERS, StandingScene } from "./StandingScenes";
 
 const panelColors: Record<StandingLevel, string> = {
   new: "bg-sun-soft",
@@ -33,6 +33,7 @@ export function StandingPath() {
         {STANDING_LEVELS.map((level, index) => {
           const info = LEVEL_INFO[level];
           const story = STANDING_STORIES[level];
+          const speaker = SCENE_SPEAKERS[level];
           return (
             <li key={level} className="overflow-hidden rounded-2xl border-2 border-ink bg-paper shadow-[4px_4px_0_0_#121633] dark:border-sky/40 dark:bg-[#20264f] dark:shadow-[4px_4px_0_0_#0b102e]">
               <div className={`border-b-2 border-ink text-ink dark:border-sky/40 ${panelColors[level]}`}>
@@ -40,11 +41,20 @@ export function StandingPath() {
                   <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink text-base font-bold text-paper">{index + 1}</span>
                   <h3 className="text-2xl font-bold">{info.name}</h3>
                 </div>
-                <div className="relative mx-4 mt-4 rounded-2xl border-2 border-ink bg-paper px-4 py-3 text-base font-bold leading-6 sm:min-h-[6.25rem]">
-                  <p>“{story.dialogue}”</p>
-                  <span aria-hidden="true" className="absolute -bottom-2.5 left-12 h-4 w-4 rotate-45 border-b-2 border-r-2 border-ink bg-paper" />
+                <div className="relative mt-4">
+                  <div className="mx-4 rounded-2xl border-2 border-ink bg-paper px-4 py-3 text-base font-bold leading-6 sm:min-h-[6.25rem]">
+                    <p><span className="sr-only">{story.speaker} says: </span>“{story.dialogue}”</p>
+                  </div>
+                  <svg viewBox="0 0 320 28" className="pointer-events-none absolute left-0 top-full z-10 -mt-[2px] w-full" aria-hidden="true" focusable="false">
+                    <path d={`M${speaker.x - 12} 0 L${speaker.x} ${speaker.tailHeight} L${speaker.x + 12} 0`} fill="white" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                  </svg>
                 </div>
-                <StandingScene level={level} />
+                <div className="relative">
+                  <StandingScene level={level} />
+                  {story.people.map((person) => (
+                    <p key={person.role} aria-hidden="true" className="absolute bottom-0 -translate-x-1/2 whitespace-nowrap rounded-t-md bg-paper/90 px-1.5 py-0.5 text-xs font-bold leading-5" style={{ left: `${person.x / 320 * 100}%` }}>{person.role}</p>
+                  ))}
+                </div>
               </div>
               <div className="px-5 pb-5 pt-6">
                 <h4 className="text-2xl font-bold leading-tight">{story.title}</h4>
