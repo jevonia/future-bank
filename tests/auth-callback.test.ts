@@ -35,3 +35,11 @@ test('unsafe redirect targets fall back to the site root', () => {
   const callback = parseAuthCallbackInput(new URLSearchParams('token_hash=x&type=recovery&next=%2F%2Fevil.example'));
   assert.equal(callback?.nextPath, '/');
 });
+
+test('encoded control characters in next cannot redirect off-site', () => {
+  for (const next of ['%2F%09%2Fevil.example', '%2F%0A%2Fevil.example', '%2F%0D%2Fevil.example', '%2F%5Cevil.example', '%2F%252F%252Fevil.example']) {
+    const callback = parseAuthCallbackInput(new URLSearchParams(`code=x&next=${next}`));
+    const destination = new URL(callback?.nextPath ?? '', 'https://newfuturebank.example');
+    assert.equal(destination.origin, 'https://newfuturebank.example', next);
+  }
+});

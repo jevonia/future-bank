@@ -20,10 +20,29 @@ export function isGoogleProviderEnabled(settings: unknown): boolean {
   return Boolean(external && typeof external === 'object' && 'google' in external && external.google === true);
 }
 
+// Placeholder origin; only used to check where a path would resolve.
+const NEXT_PATH_PROBE_ORIGIN = 'https://next-path.invalid';
+
 /** Only allow local application paths as post-auth redirect targets. */
 export function getSafeNextPath(value: string | null | undefined): string {
-  if (!value || !value.startsWith('/') || value.startsWith('//') || value.includes('\\')) {
+  // The URL parser strips tabs/newlines and treats `\` like `/`, so `/\t/evil.com` would become `//evil.com`.
+  if (
+    !value ||
+    !value.startsWith('/') ||
+    value.startsWith('//') ||
+    value.includes('\\') ||
+    /[\u0000-\u001F\u007F\s]/.test(value)
+  ) {
     return '/';
   }
+
+  let resolved: URL;
+  try {
+    resolved = new URL(value, NEXT_PATH_PROBE_ORIGIN);
+  } catch {
+    return '/';
+  }
+  // Also reject paths that normalize to `//host` (e.g. `/a/..//evil.com`) in case a caller emits them relatively.
+  if (resolved.origin !== NEXT_PATH_PROBE_ORIGIN || resolved.pathname.startsWith('//')) return '/';
   return value;
 }

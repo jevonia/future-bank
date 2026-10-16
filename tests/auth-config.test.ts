@@ -15,6 +15,49 @@ describe('auth config helpers', () => {
     assert.equal(destination.origin, 'https://newfuturebank.example');
   });
 
+  it('keeps ordinary app paths used by auth flows', () => {
+    for (const path of ['/auth/reset-password', '/dashboard', '/dashboard?tab=offers#top', '/a/b%2Fc']) {
+      assert.equal(getSafeNextPath(path), path);
+    }
+  });
+
+  it('rejects next values the URL parser would send off-site', () => {
+    const origin = 'https://newfuturebank.example';
+    const hostile = [
+      '/\t/attacker.example',
+      '/\n/attacker.example',
+      '/\r/attacker.example',
+      '/\t\n/attacker.example/path',
+      '\t//attacker.example',
+      ' //attacker.example',
+      '/ /attacker.example',
+      '/\u0000/attacker.example',
+      '/ /attacker.example',
+      '//attacker.example',
+      '///attacker.example',
+      '/\\attacker.example',
+      '\\/attacker.example',
+      '/a/..//attacker.example',
+      'https:attacker.example',
+      'javascript:alert(1)',
+      '%2F%2Fattacker.example',
+      '%2f%2fattacker.example',
+      decodeURIComponent('%2F%2Fattacker.example'),
+      decodeURIComponent('%2F%09%2Fattacker.example'),
+      decodeURIComponent('%2F%5Cattacker.example'),
+    ];
+    for (const value of hostile) {
+      assert.equal(getSafeNextPath(value), '/', JSON.stringify(value));
+      assert.equal(new URL(getSafeNextPath(value), origin).origin, origin, JSON.stringify(value));
+    }
+  });
+
+  it('keeps still-encoded slashes on the same origin', () => {
+    // A single decode happens in URLSearchParams; anything left encoded stays in the path.
+    const value = '/%2F%2Fattacker.example';
+    assert.equal(new URL(getSafeNextPath(value), 'https://newfuturebank.example').origin, 'https://newfuturebank.example');
+  });
+
   it('normalizes and validates the signup username format and boundaries', () => {
     assert.equal(normalizeUsername('  Help_Me42  '), 'help_me42');
     assert.equal(isValidUsername('a_b'), true);
