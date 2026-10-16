@@ -1,11 +1,12 @@
 # New Future Bank handoff
 
-Updated October 15, 2026, evening. Start here. This page says what is live, what is still open, and where the details live. The exact verification record for every hosted change is [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+Updated October 16, 2026. Start here. This page says what is live, what is still open, and where the details live. The exact verification record for every hosted change is [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Where things stand
 
-- **Live site:** [newfuturebank.com](https://newfuturebank.com/) runs main at `8fd3f30` (merge of [PR #8](https://github.com/jevonia/future-bank/pull/8)). Main CI run [38836209100](https://github.com/jevonia/future-bank/actions/runs/38836209100) passed and the Vercel production deployment succeeded. Smoke checks after that deploy passed: the home, `/standing`, and `/privacy` pages load, Google sign-in is reported off, `/qa/dashboard` returns 404, anonymous community API writes return 401, and cross-origin writes return 403.
-- **Database:** Supabase project `aitnqoqdkhvlgxuujowb` has all four migrations applied: the two bank migrations (October 14) and the two standing and safety migrations (October 15). Do not reapply any of them.
+- **Live site:** [newfuturebank.com](https://newfuturebank.com/) runs main at `ce9c4de` (merge of [PR #14](https://github.com/jevonia/future-bank/pull/14)). Main CI run [38903422684](https://github.com/jevonia/future-bank/actions/runs/38903422684) passed and the Vercel production deployment succeeded. Smoke checks after that deploy passed: the home, `/standing`, and `/privacy` pages load, Google sign-in is reported off, `/qa/dashboard` returns 404, anonymous community API writes return 401, and cross-origin writes return 403.
+- **Database:** Supabase project `aitnqoqdkhvlgxuujowb` has all five migrations applied: the two bank migrations (October 14), the two standing and safety migrations (October 15), and the steward notice fix (October 16). Do not reapply any of them.
+- **Review:** the first agent review is in [docs/reviews/agent-review-2026-10-16.md](docs/reviews/agent-review-2026-10-16.md). Its two high findings are fixed (C1 in PR #13, D1 in PR #14 plus its migration). The medium and lower findings are still open. To run the review again, follow [AGENT_REVIEW.md](AGENT_REVIEW.md).
 - **Members:** four real accounts, one facilitator. The facilitator is also the only Steward. No exchanges yet. All synthetic QA accounts and records from October 14 and 15 have been removed and verified gone.
 - **Open PR:** [PR #5](https://github.com/jevonia/future-bank/pull/5) adds a first-meeting safety guide and an honest safety FAQ. It is Phase 0 of the standing plan and has not been merged.
 
@@ -20,6 +21,9 @@ Updated October 15, 2026, evening. Start here. This page says what is live, what
 | [#6](https://github.com/jevonia/future-bank/pull/6) | Oct 15 | Privacy policy and terms at `/privacy` (`/terms` redirects to its second half). |
 | [#7](https://github.com/jevonia/future-bank/pull/7) | Oct 15 | Community standing, vouching, the safety card, and the public `/standing` explainer. Standing migrations applied after merge. |
 | [#8](https://github.com/jevonia/future-bank/pull/8) | Oct 15 | Docs recording the standing migration and the hosted standing QA. |
+| [#12](https://github.com/jevonia/future-bank/pull/12) | Oct 16 | The reusable agent review playbook (`AGENT_REVIEW.md`) and the first review report. |
+| [#13](https://github.com/jevonia/future-bank/pull/13) | Oct 16 | Sign-in links can no longer send people to another site (review finding C1). |
+| [#14](https://github.com/jevonia/future-bank/pull/14) | Oct 16 | A "call me" request or concern that reaches no steward now says so and points to the coordinator (review finding D1). Migration applied after merge. |
 
 ## Community standing and safety (live)
 
@@ -40,8 +44,8 @@ Not built: Phase 3 ("Care checked"), the "woman or nonbinary helper preferred" c
 
 ## Do these next
 
-1. **Turn on Supabase backups.** The Management API lists no backups for the project and point-in-time recovery is off. The only recovery material is the scoped private snapshots in `.private/` from October 14 and 15, which do not cover Auth credentials or Storage.
-2. **Revoke the Supabase access token** created on October 15 in the Supabase dashboard, then delete `.private/supabase-access-token`. The October 14 token was cleaned up the same way.
+1. **Backups come with the Pro plan.** The project is on Supabase's Free plan, which has no backups. On October 16 the coordinator chose to stay on Free for now and upgrade if the site gets regular use. Until then the only recovery material is the scoped private snapshots and preflights in `.private/` (October 14, 15, and 16), which do not cover Auth credentials or Storage.
+2. **Revoke the Supabase access token** created on October 15 in the Supabase dashboard, then delete `.private/supabase-access-token`. It was used again on October 16 for the steward notice migration. The October 14 token was cleaned up the same way.
 3. **Name the founding stewards.** Two or three people from the first circle, with the trusted SQL in [docs/DATABASE.md](docs/DATABASE.md), after they agree to the steward commitments in writing. Until then the facilitator is the only steward and receives every concern and call request.
 4. **Schedule the first gathering** and post it from the dashboard. Paper sign-in sheets can be entered afterward.
 5. **Review and merge [PR #5](https://github.com/jevonia/future-bank/pull/5)** (safety guide and FAQ) if it still fits after standing shipped.
