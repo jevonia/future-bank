@@ -1,78 +1,93 @@
 # New Future Bank handoff
 
-Updated October 15, 2026. The public page refresh below was merged through PR #2 and deploys to production from main. The October 14 app and hosted synthetic QA has passed. Synthetic records have been cleaned up and the original fund baseline restored. Verify delivery/setup for the accepted member email without exposing personal or credential details.
+Updated October 15, 2026, evening. Start here. This page says what is live, what is still open, and where the details live. The exact verification record for every hosted change is [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-## Public page and design refresh (October 15, 2026)
+## Where things stand
 
-This work was merged into main through [PR #2](https://github.com/jevonia/future-bank/pull/2) on October 15, 2026, after CI passed and the owner reviewed the Vercel preview. Production on the `future-bank` Vercel project builds from main. `NEXT_PUBLIC_COMMUNITY_CONTACT_EMAIL` is set in that project's Production environment to the owner's chosen coordinator address (not recorded here); it is not set for Preview.
+- **Live site:** [newfuturebank.com](https://newfuturebank.com/) runs main at `8fd3f30` (merge of [PR #8](https://github.com/jevonia/future-bank/pull/8)). Main CI run [38836209100](https://github.com/jevonia/future-bank/actions/runs/38836209100) passed and the Vercel production deployment succeeded. Smoke checks after that deploy passed: the home, `/standing`, and `/privacy` pages load, Google sign-in is reported off, `/qa/dashboard` returns 404, anonymous community API writes return 401, and cross-origin writes return 403.
+- **Database:** Supabase project `aitnqoqdkhvlgxuujowb` has all four migrations applied: the two bank migrations (October 14) and the two standing and safety migrations (October 15). Do not reapply any of them.
+- **Members:** four real accounts, one facilitator. The facilitator is also the only Steward. No exchanges yet. All synthetic QA accounts and records from October 14 and 15 have been removed and verified gone.
+- **Open PR:** [PR #5](https://github.com/jevonia/future-bank/pull/5) adds a first-meeting safety guide and an honest safety FAQ. It is Phase 0 of the standing plan and has not been merged.
 
-What changed:
+## What has shipped
 
-- New public page in `src/components/landing/Landing.tsx`, split out of `src/app/dashboard-client.tsx`. It tells the case for the time bank through four made-up neighbors and real, cited cost and loneliness statistics, followed by history, how it works, agreements, a FAQ, and a numbered Sources list.
-- New look: blue, yellow, and red on white; system fonts (Verdana for text, Georgia for headings) chosen for readers of every literacy level; hand-drawn SVG illustrations in `src/components/illustrations.tsx` replacing the emoji. The signed-in dashboard picks up the same colors through remapped Tailwind scales.
-- Public-domain historical photos of Black, Latino, and rural community life in a "How it used to look" section with a lead photo and a slideshow (twelve photos: seven from the Library of Congress, 1936 to 1943, and five color photos of Chicago, San Antonio, and Brooklyn from the National Archives, 1972 to 1974; city neighborhoods first), with credits and links to the original records.
-- New favicon (`src/app/icon.svg`), phone home-screen icon (`src/app/apple-icon.tsx`), and link-preview image (`src/app/opengraph-image.tsx`).
-- A first-steps checklist for new members (`src/components/dashboard/GettingStarted.tsx`) that hides once they have an offer, a request, and an exchange.
-- Copy rewritten in plain language with no em dashes. Validation messages now say "3 to 20" instead of using a dash.
-- Two optional settings: `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_COMMUNITY_CONTACT_EMAIL`.
+| PR | Merged | What it did |
+| --- | --- | --- |
+| [#1](https://github.com/jevonia/future-bank/pull/1) | Oct 14 | Revived the app: minute ledger, exchanges with reservations and two-sided confirmation, donations, projects, fund requests, urgent alerts. Bank migrations applied. |
+| [#2](https://github.com/jevonia/future-bank/pull/2) | Oct 15 | Public page refresh: local stories, cited statistics, archive photos, plain design. See [docs/DESIGN.md](docs/DESIGN.md). |
+| [#3](https://github.com/jevonia/future-bank/pull/3) | Oct 15 | Mobile header, onboarding copy, and slideshow accessibility fixes. |
+| [#4](https://github.com/jevonia/future-bank/pull/4) | Oct 15 | Collapsible dedication on the home page. |
+| [#6](https://github.com/jevonia/future-bank/pull/6) | Oct 15 | Privacy policy and terms at `/privacy` (`/terms` redirects to its second half). |
+| [#7](https://github.com/jevonia/future-bank/pull/7) | Oct 15 | Community standing, vouching, the safety card, and the public `/standing` explainer. Standing migrations applied after merge. |
+| [#8](https://github.com/jevonia/future-bank/pull/8) | Oct 15 | Docs recording the standing migration and the hosted standing QA. |
 
-The full design, writing, photo, and statistics guide is [docs/DESIGN.md](docs/DESIGN.md). Read it before changing the public page.
+## Community standing and safety (live)
 
-Checked: lint, typecheck, the 11 helper tests, the PGlite integration suite, and a production build pass locally and in CI. The page, the `/qa/dashboard` fixture, and the share image were reviewed in a browser at desktop and phone widths, and the owner reviewed the Vercel preview. Not yet checked: real phones and screen readers.
+Phases 1 and 2 of the [standing and safety plan](docs/STANDING_AND_SAFETY_PLAN.md) are live:
 
-Decisions still open before sharing the link widely:
+- Four levels in plain words: New, Introduced, Known, Steward. A missing standing row means New. A level never limits access to the bank. It only controls who can say yes to a listing that asks for it, and who can vouch.
+- Stewards create gatherings and check people in, which makes them Introduced. Known is suggested to stewards when its conditions are met, and a steward confirms it. Steward needs two nominations and a 14-day wait.
+- Private concerns go to stewards, never to a public page. Stewards can pause a member, which stops new exchanges and never shows on a profile.
+- Vouches are a sentence plus how you know the person. The "comfortable in your home?" answer is visible to stewards only.
+- On exchanges: the first-meeting card, "Tell a friend," check-ins ("I'm here and it's going fine" / "Please have a steward call me"), and a private note for stewards after completion.
+- "Who can say yes?" on offers and requests.
 
-1. Done: the coordinator contact email is set in Vercel Production. Add it to Preview too if previews should show it.
-2. Decide whether signup stays open or becomes invite-only for the first group.
-3. Decide whether new members should check a box agreeing to the six agreements at signup. Today the page asks members to keep them but signup does not record agreement.
-4. Done: the privacy policy and terms are one page at `/privacy` (`/terms` redirects to its second half), linked from the public footer and the sign-up form. It describes only what the code does today. Account deletion is still a request to the coordinator, done by hand. A lawyer or legal clinic should read the page once before the pilot grows, and it must be updated before any feature that keeps new member data ships.
-5. Replace the made-up stories with real member stories, with permission, once the pilot has some.
-6. Remove unused legacy components (`ServiceCard`, `ToolButton`, `CommunityPulse`, `CommunityProjects`, `ContributionConstellation`, `WelcomeModal`, `AmplifyModal`, `KudosModal`, `CommunityFundModal`, `src/components/icons.tsx`) and the default Next.js files in `public/`.
+How it was applied (October 15): a read-only preflight, a private snapshot of affected rows, a rehearsed rollback, one guarded transaction, and 13 postflight checks, all passing. Afterward, 42 signed-in checks on the production site passed with synthetic members, who were then removed. Details are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). The rules and the trusted SQL for naming stewards are in [docs/DATABASE.md](docs/DATABASE.md).
+
+Not tested on production: "Please have a steward call me," because it would notify the real steward.
+
+Not built: Phase 3 ("Care checked"), the "woman or nonbinary helper preferred" criterion (waits on member discussion), an on-call steward rotation (today every steward gets call requests), email or text delivery of call requests (in-app only), and removing an account from inside the app.
+
+## Do these next
+
+1. **Turn on Supabase backups.** The Management API lists no backups for the project and point-in-time recovery is off. The only recovery material is the scoped private snapshots in `.private/` from October 14 and 15, which do not cover Auth credentials or Storage.
+2. **Revoke the Supabase access token** created on October 15 in the Supabase dashboard, then delete `.private/supabase-access-token`. The October 14 token was cleaned up the same way.
+3. **Name the founding stewards.** Two or three people from the first circle, with the trusted SQL in [docs/DATABASE.md](docs/DATABASE.md), after they agree to the steward commitments in writing. Until then the facilitator is the only steward and receives every concern and call request.
+4. **Schedule the first gathering** and post it from the dashboard. Paper sign-in sheets can be entered afterward.
+5. **Review and merge [PR #5](https://github.com/jevonia/future-bank/pull/5)** (safety guide and FAQ) if it still fits after standing shipped.
+6. **Follow up on the real member's setup email.** It was accepted by the sender on October 14; inbox delivery and account setup are unverified. Do not resend unless the member asks.
+7. **Before using the community fund,** test hosted facilitator approval. It was skipped in hosted QA; native tests pass.
+
+## Decisions still open
+
+For the first circle (from the standing plan):
+
+1. The words: "Steward" or "coordinator"? "Introduced" or "Met"?
+2. Whether the Known thresholds (60 days, 3 exchanges with 2 members, 2 vouches) feel right. Keep `KNOWN_RULES` in `src/lib/standing.ts` in step with the SQL if they change.
+3. Whether care work should default to "Introduced and up."
+4. Whether to offer the "woman or nonbinary helper preferred" criterion, and how to word it.
+5. Who the stewards are, and whether they are paid in hours.
+
+For the coordinator:
+
+1. Whether signup stays open or becomes invite-only for the first group.
+2. Whether new members check a box agreeing to the six agreements at signup. Today signup does not record agreement.
+3. Have a lawyer or legal clinic read `/privacy` once before the pilot grows. Update it before any feature that keeps new member data ships.
+4. Replace the made-up stories on the public page with real ones, with permission, once the pilot has some.
+5. Remove unused legacy components (`ServiceCard`, `ToolButton`, `CommunityPulse`, `CommunityProjects`, `ContributionConstellation`, `WelcomeModal`, `AmplifyModal`, `KudosModal`, `CommunityFundModal`, `src/components/icons.tsx`) and the default Next.js files in `public/`.
 
 ## Product rules
 
-New Future Bank is a community time bank. One hour is 60 integer minutes, or one time credit. New accounts receive a recorded two-hour welcome grant; existing balances are preserved. Accepting an exchange reserves the requester's minutes, cancellation releases the reservation, and the balance transfer occurs only after both participants confirm. Project contributions record volunteer hours without minting personal credits. Facilitator roles require trusted administrative provisioning.
+New Future Bank is a community time bank. One hour is 60 integer minutes, or one time credit. New accounts receive a recorded two-hour welcome grant; existing balances are preserved. Accepting an exchange reserves the requester's minutes, cancellation releases the reservation, and the balance transfer happens only after both participants confirm. Project contributions record volunteer hours without minting personal credits. Facilitator roles and founding stewards are provisioned only with trusted SQL after a human decision. A level of standing describes how well the community knows someone; it is never a safety promise, and the site says so wherever a level appears.
 
-## Source, CI, and deployment
+## Hosting and operations
 
-Commit `d864c6f` has been pushed. CI passed at [GitHub Actions run 38622472265](https://github.com/jevonia/future-bank/actions/runs/38622472265). The release was merged through [PR #1](https://github.com/jevonia/future-bank/pull/1) into main at `bf80508`; [main CI run 38629341354](https://github.com/jevonia/future-bank/actions/runs/38629341354) passed. The production deployment was automatically built from that merge and is READY. Later documentation-only updates retain the same application source.
+- **Vercel:** project `future-bank`, ID `prj_O0wo6gqYzDOLQ6X3Ramg4TrgU5B9`, scope `novas-projects-c5420b8e`. Production builds from main. Do not select the separate `future-bank-org` project, which also builds previews of every PR. `NEXT_PUBLIC_COMMUNITY_CONTACT_EMAIL` is set in Production only (value not recorded here).
+- **Supabase:** project `aitnqoqdkhvlgxuujowb` in TheVillage organization. Production changes go through the Management API with a read-only preflight, a private snapshot, a rehearsed rollback, and postflight checks. The scripts are in `.private/` (`standing-migration.mjs` is the most recent pattern). Never run `supabase db reset` or the historical root-level SQL against a hosted project.
+- **Auth and email:** production redirects, SMTP, and the confirmation and recovery templates are configured, and hosted signup, confirmation, and recovery passed. The last Resend dashboard status was **Pending** even though messages were accepted. Google OAuth is disabled and the UI hides it; do not report Google sign-in as available.
+- **Secrets:** keep everything private under ignored `.private/`, `.env.local`, or `.vercel/`. Never commit, display, or copy their contents into tracked docs. Do not put member emails or personal details in tracked docs.
 
-Production deployment `dpl_5KN846JAkvzBDvtAqZnga5FUYPxe` is READY at [newfuturebank.com](https://newfuturebank.com/). The target remains Vercel project `future-bank`, ID `prj_O0wo6gqYzDOLQ6X3Ramg4TrgU5B9`, scope `novas-projects-c5420b8e`; do not select `future-bank-org`. Production smoke checks passed: provider discovery reports Google disabled, `/qa/dashboard` returns 404, anonymous community API access returns 401, and cross-origin mutation returns 403.
+## Checks
 
-Local lint, typecheck, 11 helper tests, PGlite migration/security tests, production build, and native PostgreSQL concurrency tests pass. Keep private environment and QA files under ignored `.private/`, `.env.local`, or `.vercel/`; never commit, display, or copy their contents into tracked docs.
-
-Temporary local Supabase/Resend token files, downloaded production env copy, and QA password/session artifacts were removed after completion. The configured remote SMTP sending key remains active; the scoped rollback snapshot and sanitized verification evidence remain private. Operational scripts requiring those temporary credentials need fresh authorized access before future use.
-
-## Supabase state
-
-Supabase project `aitnqoqdkhvlgxuujowb` in TheVillage organization has migrations `20261014000100_bank_schema.sql` and `20261014000200_bank_rpcs.sql` applied. Fourteen postflight checks passed. The original profile/listing data and four Auth references were preserved. At migration postflight, the four existing accounts and their opening ledger amounts were zero minutes, with no discrepancy. Synthetic QA records were added after that check and have since been removed; the original fund baseline was restored. Do not reapply the migrations.
-
-A scoped snapshot of affected public objects/data and Auth references was restored into native PostgreSQL, and a native clone dump restored independently. This does not cover a full Supabase restore of Auth credentials and Storage. Keep the recovery limitation explicit; the scoped SQL snapshot is not a full platform backup.
-
-## Hosted Auth and email
-
-The production Auth site URL and four exact callback URLs are configured. Public DNS checks match the Resend records, but the last dashboard status was **Pending**. SMTP and the signup-confirmation/recovery templates are configured, and actual signup/recovery emails were accepted. Hosted Auth QA passed three signups, email confirmation, server-side profile creation, and password recovery: the old password failed and the new password succeeded. The designated member setup message was accepted by the sender; inbox delivery and account setup remain unverified.
-
-Google OAuth remains disabled because no provider client is configured. The deployed app hides Google sign-in while the Supabase provider is disabled. Do not report Google login as available.
-
-## Hosted community QA
-
-Synthetic hosted checks passed privacy boundaries, accepted-exchange reservation, donation and idempotency, settlement, project contributions, and urgent notifications. Hosted cancellation release was not tested; native/local cancellation tests passed. The hosted fund-review action was skipped even though a facilitator role has since been provisioned; native/local fund tests passed. Do not include the facilitator's email or personal account details in tracked documentation.
-
-Synthetic Auth users and associated community records have been removed, and the original fund baseline restored. QA cleanup is complete. The real member setup/onboarding email was accepted by the sender; verify inbox delivery and member account setup without sending a duplicate unless needed.
-
-## Next steps
-
-1. Release integration is complete through [PR #1](https://github.com/jevonia/future-bank/pull/1); future changes should use a reviewed branch, passing CI, and the same Vercel project.
-2. Follow up on inbox delivery and account setup for the already accepted member email. Do not claim delivery or password setup without confirmation, and avoid duplicate sends unless requested.
-3. If the community fund will be used during the pilot, test hosted facilitator approval before inviting fund requests. Otherwise, defer fund activity until that check and the group's decision rules are ready.
-4. Retain the Auth/Storage backup limitation in operational notes until a full recovery path is verified.
+`npm run lint`, `npm run typecheck`, `npm run test` (28 helper tests, the bank PGlite suite, and the standing PGlite suite), and `npm run build` pass locally and in CI. Native PostgreSQL concurrency tests passed on October 14. Hosted checks: October 14 Auth and core community QA, October 15 standing QA (42 checks), and the smoke checks after each production deploy. Not yet checked: hosted cancellation release, hosted fund approval, real phones, and screen readers.
 
 ## Relevant files
 
-- `src/app/auth/callback/route.ts`, `src/lib/auth-callback.ts`, and `tests/auth-callback.test.ts` cover the Auth callback flows.
-- `supabase/templates/confirm-signup.html` and `supabase/templates/reset-password.html` are the configured email templates.
-- `supabase/migrations/20261014000100_bank_schema.sql` and `supabase/migrations/20261014000200_bank_rpcs.sql` are already applied to the hosted project.
-- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) records exact deployment and QA status; [`docs/DATABASE.md`](docs/DATABASE.md) explains the SQL contract; [`docs/ROADMAP.md`](docs/ROADMAP.md) records the activation plan.
+- `src/app/dashboard-client.tsx`: the signed-in dashboard. `src/components/landing/Landing.tsx`: the public page.
+- `src/components/standing/`: standing cards, dialogs, steward desk, safety card, and the `/standing` graphic. `src/lib/standing.ts`: all level wording and the Known rules, shared by the page and the dashboard.
+- `src/app/standing/page.tsx` and `src/app/privacy/page.tsx`: the public explainer and the privacy and terms page.
+- `supabase/migrations/`: the four applied migrations, in order. `supabase/tests/`: the PGlite bank and standing suites and the native concurrency test.
+- `src/app/auth/callback/route.ts`, `src/lib/auth-callback.ts`, and `supabase/templates/`: Auth callback and email templates.
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): exact hosted state and verification. [docs/DATABASE.md](docs/DATABASE.md): the SQL contract and rules. [docs/ROADMAP.md](docs/ROADMAP.md): the pilot plan. [docs/DESIGN.md](docs/DESIGN.md): design and writing guide. [docs/STANDING_AND_SAFETY_PLAN.md](docs/STANDING_AND_SAFETY_PLAN.md): the reasoning behind standing.
 
-Root owns live hosting, database, email, and browser operations. Coordinate before using the shared browser or changing hosted state. The development-only `/qa/dashboard` fixture requires `BANK_QA_FIXTURE=1`; it is read-only and never counts as production evidence.
+Root owns live hosting, database, email, and browser operations. Coordinate before using the shared browser or changing hosted state. The development-only `/qa/dashboard` fixture requires `BANK_QA_FIXTURE=1`; add `?standing=new` for the New-member view. It is read-only and never counts as production evidence.
