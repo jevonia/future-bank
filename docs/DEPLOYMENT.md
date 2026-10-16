@@ -11,7 +11,22 @@ Updated October 14, 2026. The bank migrations are live and the new app is deploy
 - **Rehearsal:** the exact request was run in PGlite on a fixture with the live functions and Supabase's default grants, then rolled back (schema and grants matched the prior state exactly) and re-applied.
 - **Apply:** one serializable transaction through the Management API, guarded against drift since preflight, pinned to the rehearsed SQL by hash. HTTP 201.
 - **Postflight:** all 13 read-only checks passed: four migration versions; RLS on all 12 new tables; no client writes and no anonymous reads on them; the vouch `home_answer` column hidden from members; no anonymous execute on any standing function; members can execute exactly the granted RPCs; pinned empty search paths; one `bank_save_listing`; the facilitator backfilled as Steward with one `standing_events` row; offers and wants unchanged apart from `min_standing='anyone'`; ledger reconciles; Auth, profile, account, and ledger counts unchanged. Anonymous REST calls to `bank_member_standing`, `bank_steward_vouches`, and the `vouches` table return 401 permission denied.
-- **Not yet checked:** signed-in standing flows on the production site (the dashboard shows standing once `bank_member_standing` exists).
+- **Signed-in flows:** checked on the production site the same evening; see the hosted standing QA below.
+
+## Hosted standing QA (October 15, 2026)
+
+Three synthetic members signed up and confirmed email on `newfuturebank.com` the way the October 14 hosted QA did. One of them was made a steward with a single guarded SQL insert. All 42 checks passed:
+
+- **Your standing:** a New member's dashboard shows the "Your standing" and Gatherings cards.
+- **Gatherings:** a steward created a gathering and checked a member in, and that member became Introduced. Members who aren't stewards can't create gatherings or check people in.
+- **Who can say yes?:** an "Introduced and up" offer turned away the New member's request with the "met in person" message. The Introduced member's request went through.
+- **Concerns:** a concern was visible to the reporter and to stewards, but not to the member it was about. The reporter saw the steward's reply, but not the steward's working notes.
+- **Vouches:** members and the vouched-for member couldn't read `home_answer` (column denied, steward RPC denied, absent from their dashboard). A steward could read it.
+- **Exchanges:** the first-meeting plan was shared only between the two people on the exchange. An "I'm fine" check-in was seen only by the person who wrote it.
+
+The gathering was dated 45 days back, so it sent no all-member notice and never appeared on real members' cards. "Please have a steward call me" was not tested because it would notify the real steward. The concern test sent the one real steward a single in-app notice, which the user approved ahead of time.
+
+A guarded cleanup removed every synthetic account and record, including that one notice. A read-only count then found zero remaining rows across Auth, profiles, accounts, ledger, notifications, and all 12 standing and safety tables. Steward, gathering, concern, and vouch totals match the preflight. The run's local session file was deleted. The scripts, manifest, and results are in `.private/` (`hosted-standing-qa*.mjs`, `hosted-standing-qa-results-<run>.json`).
 
 ## Current state
 
