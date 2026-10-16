@@ -3,197 +3,84 @@ import {
   NOT_A_PROMISE,
   SAFETY_HABITS,
   STANDING_LEVELS,
+  STANDING_STORIES,
   type StandingLevel,
 } from "@/lib/standing";
+import { StandingScene } from "./StandingScenes";
 
-/*
- * The standing explainer graphic: the four levels as a path, then how
- * vouching works. It is plain HTML and CSS with small inline drawings, so the
- * words stay real text, screen readers read it in order, and it reflows to a
- * single column on a phone. All copy comes from src/lib/standing.ts.
- */
-
-const tones: Record<
-  StandingLevel,
-  { ring: string; emblem: string; head: string }
-> = {
-  new: {
-    ring: "border-slate-200 dark:border-white/15",
-    emblem: "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-200",
-    head: "text-slate-700 dark:text-slate-200",
-  },
-  introduced: {
-    ring: "border-sky dark:border-violet-400/40",
-    emblem: "bg-sky text-cobalt dark:bg-violet-400/20 dark:text-violet-200",
-    head: "text-cobalt dark:text-violet-200",
-  },
-  known: {
-    ring: "border-mint dark:border-leaf/40",
-    emblem: "bg-mint text-leaf-deep dark:bg-leaf/20 dark:text-mint",
-    head: "text-leaf-deep dark:text-mint",
-  },
-  steward: {
-    ring: "border-sun dark:border-sun/50",
-    emblem: "bg-sun-soft text-ink dark:bg-sun/20 dark:text-sun",
-    head: "text-ink dark:text-sun",
-  },
+const panelColors: Record<StandingLevel, string> = {
+  new: "bg-sun-soft",
+  introduced: "bg-sky",
+  known: "bg-mint",
+  steward: "bg-sun-soft",
 };
-
-function Emblem({ level }: { level: StandingLevel }) {
-  const common = {
-    viewBox: "0 0 48 48",
-    className: "h-9 w-9",
-    "aria-hidden": true as const,
-    fill: "currentColor",
-  };
-  switch (level) {
-    case "new":
-      return (
-        <svg {...common}>
-          <path d="M10 39h28" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-          <path d="M24 39V22" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-          <path d="M24 26c-8 0-12-5-12-11 7 0 12 4 12 11Z" />
-          <path d="M24 22c0-7 5-11 12-11 0 7-4 11-12 11Z" opacity=".65" />
-        </svg>
-      );
-    case "introduced":
-      return (
-        <svg {...common}>
-          <circle cx="17" cy="16" r="6" />
-          <path d="M6 39c0-7 5-12 11-12s11 5 11 12Z" />
-          <circle cx="32" cy="18" r="5" opacity=".6" />
-          <path d="M23 39c1-6 4-10 9-10s9 4 10 10Z" opacity=".6" />
-        </svg>
-      );
-    case "known":
-      return (
-        <svg {...common}>
-          <circle cx="24" cy="25" r="19" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="3 4" />
-          <circle cx="24" cy="19" r="5" />
-          <path d="M15 34c0-5 4-9 9-9s9 4 9 9Z" />
-          <circle cx="8" cy="17" r="3.5" opacity=".6" />
-          <circle cx="40" cy="17" r="3.5" opacity=".6" />
-          <circle cx="10" cy="37" r="3.5" opacity=".6" />
-          <circle cx="38" cy="37" r="3.5" opacity=".6" />
-        </svg>
-      );
-    case "steward":
-      return (
-        <svg {...common}>
-          <path d="M20 10a4 4 0 0 1 8 0" fill="none" stroke="currentColor" strokeWidth="2.5" />
-          <path d="M16 16h16l-3-5H19Z" />
-          <rect x="16" y="16" width="16" height="19" rx="3" fill="none" stroke="currentColor" strokeWidth="3" />
-          <path d="M24 20c3.5 3 3.5 7 0 10-3.5-3-3.5-7 0-10Z" className="text-tomato" fill="currentColor" />
-          <path d="M13 39h22" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-        </svg>
-      );
-  }
-}
-
-function Arrow({ className }: { className: string }) {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true" className={className}>
-      <path d="M4 2l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 function Label({ children }: { children: string }) {
   return (
-    <dt className="mt-4 text-sm font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-      {children}
-    </dt>
+    <dt className="mt-4 font-bold">{children}</dt>
   );
 }
 
-// Shown on the connectors between levels on wide screens. Each card's "How
-// you get here" says the same in full, so these are hidden from screen readers.
-const stepLabels = [
-  "A steward meets you",
-  "Exchanges and two vouches",
-  "Two stewards nominate you",
-];
-
-/** The four levels in order, each with what it means and does not mean. */
+/** A comic-strip introduction, with the complete rules one tap away. */
 export function StandingPath() {
   return (
     <div>
-      <p
-        role="note"
-        className="flex gap-3 rounded-2xl border-2 border-tomato-deep/30 bg-blush/40 p-4 leading-7 text-ink sm:p-5 dark:border-tomato/50 dark:bg-tomato/10 dark:text-paper"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true" className="mt-1 h-6 w-6 shrink-0 text-tomato-deep dark:text-tomato">
-          <path d="M12 3 2 20h20L12 3Z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M12 10v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <circle cx="12" cy="17" r="1.2" fill="currentColor" />
-        </svg>
-        <span>
-          <strong>{NOT_A_PROMISE}</strong> {SAFETY_HABITS}
-        </span>
-      </p>
-      <ol className="mt-8 grid gap-6 lg:grid-cols-4" aria-label="The four levels of standing, in order">
+      <div className="mb-6 max-w-3xl space-y-2 leading-8">
+        <p className="font-bold">You can trade hours from day one.</p>
+        <p>These words tell you how well the community knows someone. Here’s what that can look like, one neighbor at a time.</p>
+      </div>
+      <ol className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-4" aria-label="The four levels of standing, in order">
         {STANDING_LEVELS.map((level, index) => {
           const info = LEVEL_INFO[level];
-          const tone = tones[level];
-          const last = index === STANDING_LEVELS.length - 1;
+          const story = STANDING_STORIES[level];
           return (
-            <li key={level} className="relative pl-16 lg:flex lg:flex-col lg:pl-0">
-              {!last && (
-                <>
-                  <span
-                    aria-hidden="true"
-                    className="absolute bottom-[-1.5rem] left-7 top-16 border-l-[3px] border-dashed border-slate-300 lg:hidden dark:border-white/25"
-                  />
-                  <span
-                    aria-hidden="true"
-                    className="absolute left-[4.25rem] right-[-1.25rem] top-7 hidden border-t-[3px] border-dashed border-slate-300 lg:block dark:border-white/25"
-                  />
-                  <span
-                    aria-hidden="true"
-                    className="absolute left-[4.5rem] right-0 top-0 hidden text-center text-xs font-bold leading-4 text-slate-500 lg:block dark:text-slate-400"
-                  >
-                    {stepLabels[index]}
-                  </span>
-                  <Arrow className="absolute -right-5 top-[1.2rem] hidden h-5 w-5 text-slate-400 lg:block dark:text-white/50" />
-                  <Arrow className="absolute bottom-[-1.6rem] left-[1.15rem] h-5 w-5 rotate-90 text-slate-400 lg:hidden dark:text-white/50" />
-                </>
-              )}
-              <div
-                className={`absolute left-0 top-0 grid h-14 w-14 place-items-center rounded-full ring-4 ring-paper lg:static dark:ring-night ${tone.emblem}`}
-              >
-                <Emblem level={level} />
+            <li key={level} className="overflow-hidden rounded-2xl border-2 border-ink bg-paper shadow-[4px_4px_0_0_#121633] dark:border-sky/40 dark:bg-[#20264f] dark:shadow-[4px_4px_0_0_#0b102e]">
+              <div className={`border-b-2 border-ink text-ink dark:border-sky/40 ${panelColors[level]}`}>
+                <div className="flex items-center gap-3 px-5 pt-5">
+                  <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink text-base font-bold text-paper">{index + 1}</span>
+                  <h3 className="text-2xl font-bold">{info.name}</h3>
+                </div>
+                <div className="relative mx-4 mt-4 rounded-2xl border-2 border-ink bg-paper px-4 py-3 text-base font-bold leading-6 sm:min-h-[6.25rem]">
+                  <p>“{story.dialogue}”</p>
+                  <span aria-hidden="true" className="absolute -bottom-2.5 left-12 h-4 w-4 rotate-45 border-b-2 border-r-2 border-ink bg-paper" />
+                </div>
+                <StandingScene level={level} />
               </div>
-              <div
-                className={`rounded-3xl border-2 bg-paper p-5 lg:mt-4 lg:flex-1 dark:bg-white/5 ${tone.ring}`}
-              >
-                <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
-                  Step {index + 1} of 4
-                </p>
-                <h3 className={`mt-1 text-2xl font-bold ${tone.head}`}>
-                  {info.name}
-                </h3>
-                <p className="mt-2 leading-7">{info.means}</p>
-                <dl className="text-base leading-7">
-                  <Label>How you get here</Label>
-                  <dd className="mt-1">{info.howToGetHere}</dd>
-                  <Label>What it lets you do</Label>
-                  <dd className="mt-1">
-                    <ul className="list-disc space-y-1 pl-5">
-                      {info.letsYou.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </dd>
-                  <Label>What it does not mean</Label>
-                  <dd className="mt-1 rounded-xl bg-haze p-3 dark:bg-white/10">
-                    {info.doesNotMean}
-                  </dd>
-                </dl>
+              <div className="px-5 pb-5 pt-6">
+                <h4 className="text-2xl font-bold leading-tight">{story.title}</h4>
+                <p className="mt-3 text-base leading-7">{story.copy}</p>
+                <p className="mt-4 border-l-4 border-sun pl-3 text-base leading-7 text-slate-700 dark:text-slate-200">{story.reminder}</p>
+                <details className="group mt-5 border-t border-slate-200 pt-4 dark:border-white/20">
+                  <summary className="cursor-pointer rounded-sm text-base font-bold text-cobalt underline decoration-cobalt/30 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cobalt dark:text-sky dark:decoration-sky/50 dark:focus-visible:outline-sky">
+                    Full details: {info.name}
+                  </summary>
+                  <dl className="text-base leading-7">
+                    <Label>What it means</Label>
+                    <dd className="mt-1">{info.means}</dd>
+                    <Label>How you get here</Label>
+                    <dd className="mt-1">{info.howToGetHere}</dd>
+                    <Label>What it lets you do</Label>
+                    <dd className="mt-1">
+                      <ul className="list-disc space-y-1 pl-5">
+                        {info.letsYou.map((item) => <li key={item}>{item}</li>)}
+                      </ul>
+                    </dd>
+                    <Label>What it does not mean</Label>
+                    <dd className="mt-1">{info.doesNotMean}</dd>
+                  </dl>
+                </details>
               </div>
             </li>
           );
         })}
       </ol>
+      <p className="mt-6 text-base leading-7 text-slate-700 dark:text-slate-300">
+        You don’t have to become a steward. It’s a job some neighbors choose to take on.
+      </p>
+      <div role="note" className="mt-6 rounded-2xl border border-sky bg-haze p-5 leading-7 dark:border-sky/30 dark:bg-white/5">
+        <p className="font-bold">{NOT_A_PROMISE}</p>
+        <p className="mt-2">{SAFETY_HABITS}</p>
+      </div>
     </div>
   );
 }

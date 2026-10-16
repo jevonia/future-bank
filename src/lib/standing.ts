@@ -104,6 +104,39 @@ export const LEVEL_INFO: Record<StandingLevel, LevelInfo> = {
   },
 };
 
+/** Short, illustrated introduction; full requirements stay in LEVEL_INFO. */
+export const STANDING_STORIES: Record<StandingLevel, {
+  dialogue: string;
+  title: string;
+  copy: string;
+  reminder: string;
+}> = {
+  new: {
+    dialogue: "I can cook. Who needs a hand?",
+    title: "Start with what you can share",
+    copy: "Confirm your email, post an offer, or ask for help. You can trade hours from day one.",
+    reminder: "Everyone starts here. Nobody from the bank has met you yet.",
+  },
+  introduced: {
+    dialogue: "Come on in. Let’s meet the neighbors!",
+    title: "Meet a steward",
+    copy: "Come to a gathering and get checked in. If getting there is hard, ask about meeting one to one.",
+    reminder: "A steward has met you. They haven’t checked your background.",
+  },
+  known: {
+    dialogue: "We’ve helped each other. I’ll vouch for you.",
+    title: "Keep showing up for each other",
+    copy: "Trade hours with neighbors and get two vouches. A steward checks the full requirements before confirming Known.",
+    reminder: "People have worked with you. That still isn’t a safety promise.",
+  },
+  steward: {
+    dialogue: "Welcome! Let’s sit down and talk.",
+    title: "Help welcome the next neighbor",
+    copy: "If you choose this role, two stewards nominate you. You agree to help welcome people and listen to concerns.",
+    reminder: "A steward is a neighbor with a job to do. Everyone’s hour stays equal.",
+  },
+};
+
 export const VOUCH_BASIS_LABELS = {
   met: "We have met in person",
   exchange: "We finished an exchange together",
